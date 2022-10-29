@@ -1,22 +1,40 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+	"net/url"
 	"os"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/zellyn/kooky"
-	_ "github.com/zellyn/kooky/browser/chrome" // register cookie store finders!
+	"github.com/zellyn/kooky/browser/chrome"
 )
 
-// var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
+func init() {
+	log.SetFlags(log.Ltime | log.Lshortfile)
+}
 
 func main() {
-	daily := &DailyHoyolab{
-		ActID:    "e202102251931481",
-		Endpoint: "https://sg-hk4e-api.hoyolab.com",
-		Sign:     "/event/sol/sign",
-		Info:     "/event/sol/info",
-		Lang:     "en-us",
+	hoyo := &Hoyolab{
+		Client:    resty.New(),
+		CookieJar: []*http.Cookie{},
+		Daily: &DailyHoyolab{
+			Browser:  "chrome",
+			Referer:  "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html",
+			Endpoint: "https://sg-hk4e-api.hoyolab.com",
+			ActID:    "e202102251931481",
+			API: DailyAPI{
+				Domain: "https://hoyolab.com",
+				Sign:   "/event/sol/sign",
+				Info:   "/event/sol/info",
+			},
+			Lang: "en-us",
+		},
+	}
+
+	if err := hoyo.CheckDaily(); err != nil {
+		log.Printf("CheckDaily: %v", err)
 	}
 
 	for _, store := range kooky.FindAllCookieStores() {
@@ -26,11 +44,30 @@ func main() {
 			continue
 		}
 
-		fmt.Printf("%+v\n", store.FilePath())
-	}
+		log.Printf("%+v\n", store.FilePath())
+		cookies, err := chrome.CookieJar(store.FilePath())
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	if err := daily.CheckServer(); err != nil {
-		fmt.Printf("API: %v", err)
+		uri, _ := url.Parse(hoyo.Daily.API.Domain)
+		hoyo.SetCookie(cookies.Cookies(uri))
+
+		res, err := hoyo.CheckDailyStatus()
+		if err != nil {
+			log.Printf("CheckDailyStatus: %v", err)
+		}
+		if res.RetCode != 0 {
+			log.Printf("CONNECTION ERROR: %s", res.Message)
+			continue
+		}
+
+		if !res.Data.IsSign {
+			log.Printf("CONNECTION ERROR: %s", res.Message)
+			continue
+		}
+
+		break
 	}
 
 	// cookies := kooky.ReadCookies(kooky.DomainContains("hoyolab.com"))
@@ -52,24 +89,6 @@ func main() {
 	// 	}
 	// }
 }
-
-// fetch("https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us", {
-//   "headers": {
-//     "accept": "*/*",
-//     "accept-language": "en-US,en;q=0.9,th;q=0.8",
-//     "cache-control": "no-cache",
-//     "pragma": "no-cache",
-//     "sec-fetch-dest": "empty",
-//     "sec-fetch-mode": "cors",
-//     "sec-fetch-site": "same-site"
-//   },
-//   "referrer": "https://act.hoyolab.com/",
-//   "referrerPolicy": "strict-origin-when-cross-origin",
-//   "body": null,
-//   "method": "OPTIONS",
-//   "mode": "cors",
-//   "credentials": "omit"
-// });
 
 // fetch("https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us", {
 //   "headers": {
