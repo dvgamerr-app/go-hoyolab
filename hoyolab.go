@@ -89,7 +89,7 @@ func (hoyo *Hoyolab) CheckDaily() error {
 	return nil
 }
 
-func (hoyo *Hoyolab) CheckDailyStatus() (*ResInfo, error) {
+func (hoyo *Hoyolab) DailyInfo() (*ResInfo, error) {
 	if len(hoyo.CookieJar) == 0 {
 		return nil, fmt.Errorf("noting cookie-jar")
 	}
@@ -106,7 +106,7 @@ func (hoyo *Hoyolab) CheckDailyStatus() (*ResInfo, error) {
 		return nil, fmt.Errorf("ERROR: status: %s", res.Status())
 	}
 
-	log.Println("CheckDailyStatus:", res)
+	log.Println("DailyInfo:", res)
 
 	var resInfo ResInfo
 	err = json.Unmarshal(res.Body(), &resInfo)
@@ -114,4 +114,35 @@ func (hoyo *Hoyolab) CheckDailyStatus() (*ResInfo, error) {
 		return nil, fmt.Errorf("ERROR: ResInfo{}")
 	}
 	return &resInfo, nil
+}
+
+func (hoyo *Hoyolab) DailySign() (*resty.Response, error) {
+	if len(hoyo.CookieJar) == 0 {
+		return nil, fmt.Errorf("noting cookie-jar")
+	}
+
+	res, err := hoyo.
+		callRequest(map[string]string{
+			"lang":   hoyo.Daily.Lang,
+			"act_id": hoyo.Daily.ActID,
+		}).
+		SetCookies(hoyo.CookieJar).
+		SetBody(map[string]string{"act_id": hoyo.Daily.ActID}).
+		Post(hoyo.Daily.Endpoint + hoyo.Daily.API.Sign)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("ERROR: status: %s", res.Status())
+	}
+
+	log.Println("DailySign:", res)
+
+	// var resInfo ResInfo
+	// err = json.Unmarshal(res.Body(), &resInfo)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("ERROR: ResInfo{}")
+	// }
+	return res, nil
 }

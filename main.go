@@ -53,21 +53,23 @@ func main() {
 		uri, _ := url.Parse(hoyo.Daily.API.Domain)
 		hoyo.SetCookie(cookies.Cookies(uri))
 
-		res, err := hoyo.CheckDailyStatus()
+		resInfo, err := hoyo.DailyInfo()
 		if err != nil {
-			log.Printf("CheckDailyStatus: %v", err)
+			log.Printf("DailyInfo: %v", err)
 		}
-		if res.RetCode != 0 {
-			log.Printf("CONNECTION ERROR: %s", res.Message)
+		if resInfo.RetCode != 0 {
+			log.Printf("CONNECTION ERROR: %s", resInfo.Message)
 			continue
 		}
 
-		if !res.Data.IsSign {
-			log.Printf("CONNECTION ERROR: %s", res.Message)
+		if resInfo.Data.IsSign {
 			continue
 		}
 
-		break
+		_, err = hoyo.DailySign()
+		if err != nil {
+			log.Printf("DailySign: %v", err)
+		}
 	}
 
 	// cookies := kooky.ReadCookies(kooky.DomainContains("hoyolab.com"))
