@@ -4,27 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-resty/resty/v2"
-	jsoniter "github.com/json-iterator/go"
 	"github.com/zellyn/kooky"
 	_ "github.com/zellyn/kooky/browser/chrome" // register cookie store finders!
 )
 
-type DailyCheckIn struct {
-	ActID    string `yaml:"act_id"`
-	Endpoint string `yaml:"endpoint"`
-	Sign     string `yaml:"sign"`
-	Info     string `yaml:"info"`
-	Lang     string `yaml:"lang"`
-}
-
-var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
-var config DailyCheckIn
+// var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func main() {
-	client := resty.New()
-
-	config = DailyCheckIn{
+	daily := &DailyHoyolab{
 		ActID:    "e202102251931481",
 		Endpoint: "https://sg-hk4e-api.hoyolab.com",
 		Sign:     "/event/sol/sign",
@@ -42,28 +29,9 @@ func main() {
 		fmt.Printf("%+v\n", store.FilePath())
 	}
 
-	hoyolabHeaders := map[string]string{
-		"Accept":          "application/json, text/plain, */*",
-		"Accept-Language": "en-US,en;q=0.5",
-		"Origin":          "https://webstatic-sea.mihoyo.com",
-		"Connection":      "keep-alive",
-		"Referer":         fmt.Sprintf("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=%s&lang=%s", config.ActID, config.Lang),
-		"Cache-Control":   "max-age=0",
+	if err := daily.CheckServer(); err != nil {
+		fmt.Printf("API: %v", err)
 	}
-
-	res, err := client.R().
-		SetHeaders(hoyolabHeaders).
-		SetQueryParams(map[string]string{
-			"lang": config.Lang,
-		}).
-		Options(config.Sign)
-
-	if err != nil || res.Status() != "204" {
-		fmt.Printf("API: %v", res)
-	}
-
-	fmt.Printf("err: %+v\n", err)
-	fmt.Printf("res: %+v\n", res.Status())
 
 	// cookies := kooky.ReadCookies(kooky.DomainContains("hoyolab.com"))
 	// for _, cookie := range cookies {
