@@ -64,6 +64,7 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ steps.vars.outputs.tag }}
+        asset_path: ${{ steps.vars.outputs.zip }}
         prerelease: true
         draft: false
 
