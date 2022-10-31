@@ -6,6 +6,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/json-iterator/go v1.1.12
 	github.com/zellyn/kooky v0.0.0-20221025221128-3e66d684c4db
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -20,5 +21,4 @@ require (
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sys v0.1.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
