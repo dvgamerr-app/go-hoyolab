@@ -44,11 +44,12 @@ jobs:
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
         [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=v$(echo $VERSION | sed -e 's/^v//')
 
-        zipfile=hoyolab-$VERSION-${{ matrix.name }}.zip
-        echo ::set-output name=zipfile::${zipfile}
+        ZIPFILE=hoyolab-$VERSION-${{ matrix.name }}.zip
+        echo ::set-output name=zipfile::${ZIPFILE}
+        echo ::set-output name=version::${VERSION}
 
         go build -ldflags -H=windowsgui .
-        zip $zipfile hoyolab.exe README.md
+        zip $ZIPFILE hoyolab.exe README.md
 
     - name: Create Release
       if: success() && !contains(github.ref, 'main')
@@ -57,10 +58,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        release_name: Release ${{ steps.build.outputs.version }}
+        prerelease: true
         draft: false
-        prerelease: false
 
     - name: Upload Release
       if: success() && !contains(github.ref, 'main')
