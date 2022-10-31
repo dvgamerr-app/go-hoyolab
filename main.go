@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/zellyn/kooky"
@@ -16,24 +17,46 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var configFile string = "config.yaml"
+var configExt string = "yaml"
+var logExt string = "log"
 var configPath string = ""
+var logPath string = ""
+var logfile *os.File
 
 func init() {
-	log.SetFlags(log.Ltime | log.Lshortfile)
+	filename, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	filename = strings.ReplaceAll(filepath.Base(filename), filepath.Ext(filename), "")
 
-	configPath = configFile
+	configPath = fmt.Sprintf("%s.%s", filename, configExt)
+	logPath = fmt.Sprintf("%s.%s", filename, logExt)
+
 	dirname, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if _, err := os.Stat(path.Join(dirname, configFile)); err == nil {
-		configPath = path.Join(dirname, configFile)
+	if _, err := os.Stat(path.Join(dirname, configExt)); err == nil {
+		configPath = path.Join(dirname, configPath)
+		logPath = path.Join(dirname, logPath)
+	}
+	if !IsDebug {
+		log.SetFlags(log.Ldate | log.Ltime)
+		f, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.SetOutput(f)
 	}
 }
 
 func main() {
+	if logfile != nil {
+		defer logfile.Close()
+	}
+
 	installSchedule := *flag.Bool("install", false, "# install to ")
 	flag.Parse()
 
@@ -75,6 +98,20 @@ func main() {
 		if err != nil {
 			log.Panic("WriteFile fail")
 		}
+	} else {
+		raw, err := os.ReadFile(configPath)
+		if err != nil {
+			log.Panic("ReadFile fail")
+		}
+
+		var configFile map[string]*DailyHoyolab
+
+		err = yaml.Unmarshal(raw, &configFile)
+		if err != nil {
+			log.Panic("yaml Marshal fail")
+		}
+
+		hoyo.Daily = configFile["config"]
 	}
 
 	for _, store := range kooky.FindAllCookieStores() {
