@@ -38,6 +38,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.5.1 h1:nOGnQDM7FYENwehXlg/kFVnos3rEvtKTjRvOWSzb6H4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
+github.com/tmilewski/goenv v1.0.0 h1:4xpKGHo7W3bfBi3rjzK30JPDiwmmVf2tHAy+NZI6a1A=
+github.com/tmilewski/goenv v1.0.0/go.mod h1:cSJaYLC0V+xraoBwU1P+rjz/M1LXB4GEU5RHmoYjxy0=
 github.com/zalando/go-keyring v0.2.1 h1:MBRN/Z8H4U5wEKXiD67YbDAr5cj/DOStmSga70/2qKc=
 github.com/zalando/go-keyring v0.2.1/go.mod h1:g63M2PPn0w5vjmEbwAX3ib5I+41zdm4esSETOn9Y6Dw=
 github.com/zellyn/kooky v0.0.0-20221025221128-3e66d684c4db h1:GiYcv6tEo8yme647CfG3tUydWi7LQG55oNb5bZ2ZeUM=

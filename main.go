@@ -1,40 +1,80 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"path/filepath"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/zellyn/kooky"
 	"github.com/zellyn/kooky/browser/chrome"
+	"gopkg.in/yaml.v2"
 )
+
+var configFile string = "config.yaml"
+var configPath string = ""
 
 func init() {
 	log.SetFlags(log.Ltime | log.Lshortfile)
+
+	configPath = configFile
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := os.Stat(path.Join(dirname, configFile)); err == nil {
+		configPath = path.Join(dirname, configFile)
+	}
 }
 
 func main() {
+	installSchedule := *flag.Bool("install", false, "# install to ")
+	flag.Parse()
+
+	if installSchedule {
+		ex, err := os.Executable()
+		if err != nil {
+			panic(err)
+		}
+		exPath := filepath.Dir(ex)
+		fmt.Println(exPath)
+	}
+
 	hoyo := &Hoyolab{
 		Client:    resty.New(),
 		CookieJar: []*http.Cookie{},
 		Daily: &DailyHoyolab{
-			Browser:  "chrome",
-			Referer:  "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html",
-			Endpoint: "https://sg-hk4e-api.hoyolab.com",
-			ActID:    "e202102251931481",
+			ActID: "e202102251931481",
 			API: DailyAPI{
-				Domain: "https://hoyolab.com",
-				Sign:   "/event/sol/sign",
-				Info:   "/event/sol/info",
+				Endpoint: "https://sg-hk4e-api.hoyolab.com",
+				Domain:   "https://hoyolab.com",
+				Sign:     "/event/sol/sign",
+				Info:     "/event/sol/info",
 			},
-			Lang: "en-us",
+			Browser:   "chrome",
+			Lang:      "en-us",
+			Referer:   "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html",
+			UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
 		},
 	}
 
-	if err := hoyo.CheckDaily(); err != nil {
-		log.Printf("CheckDaily: %v", err)
+	if _, err := os.Stat(configPath); err != nil {
+		raw, err := yaml.Marshal(map[string]interface{}{
+			"config": hoyo.Daily,
+		})
+		if err != nil {
+			log.Panic("yaml Marshal fail")
+		}
+		err = os.WriteFile(configPath, raw, 0644)
+		if err != nil {
+			log.Panic("WriteFile fail")
+		}
 	}
 
 	for _, store := range kooky.FindAllCookieStores() {
@@ -44,7 +84,7 @@ func main() {
 			continue
 		}
 
-		log.Printf("%+v\n", store.FilePath())
+		log.Printf("%s::%s", store.Browser(), store.Profile())
 		cookies, err := chrome.CookieJar(store.FilePath())
 		if err != nil {
 			log.Fatal(err)
@@ -53,85 +93,29 @@ func main() {
 		uri, _ := url.Parse(hoyo.Daily.API.Domain)
 		hoyo.SetCookie(cookies.Cookies(uri))
 
-		resInfo, err := hoyo.DailyInfo()
-		if err != nil {
-			log.Printf("DailyInfo: %v", err)
-		}
-		if resInfo.RetCode != 0 {
-			log.Printf("CONNECTION ERROR: %s", resInfo.Message)
-			continue
+		if len(hoyo.CookieJar) == 0 {
+			log.Fatalf("%s::Cookie is empty, please login hoyolab.com.", store.Browser())
 		}
 
-		if resInfo.Data.IsSign {
+		resInfo, err := hoyo.DailyInfo()
+		if err != nil || resInfo.RetCode != 0 {
+			log.Fatalf("Hoyolab::DailyInfo: %v", err)
+		}
+		// log.Printf("Hoyolab::DailyInfo:%+v", resInfo.Data)
+
+		actInfo, ok := resInfo.Data.(ActInfo)
+		if !ok {
+			log.Fatalf("DailyInfo: %v", err)
+		}
+		if actInfo.IsSign {
+			log.Printf("Hoyolab::DailyInfo:Claimed Today %s (Total %d Claims)", actInfo.Today, actInfo.TotalSignDay)
 			continue
 		}
 
 		_, err = hoyo.DailySign()
 		if err != nil {
-			log.Printf("DailySign: %v", err)
+			log.Fatalf("DailySign: %v", err)
 		}
+		// log.Printf("Hoyolab::DailySign:%+v", resInfo.Data)
 	}
-
-	// cookies := kooky.ReadCookies(kooky.DomainContains("hoyolab.com"))
-	// for _, cookie := range cookies {
-	// 	fmt.Printf("%+v\n", cookie)
-	// }
-
-	// dir, _ := os.UserCacheDir() // "/<USER>/Library/Application Support/"
-	// cookiesFile := path.Join(dir, "Google/Chrome/User Data/Default/Network/Cookies")
-	// cookies, err := chrome.ReadCookies(cookiesFile)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// r, _ := regexp.Compile(".+?hoyolab.com$")
-	// for _, cookie := range cookies {
-	// 	if r.MatchString(cookie.Domain) {
-	// 		fmt.Println(cookie.Cookie)
-	// 	}
-	// }
 }
-
-// fetch("https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us", {
-//   "headers": {
-//     "accept": "application/json, text/plain, */*",
-//     "accept-language": "en-US,en;q=0.9,th;q=0.8",
-//     "cache-control": "no-cache",
-//     "content-type": "application/json;charset=UTF-8",
-//     "pragma": "no-cache",
-//     "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
-//     "sec-ch-ua-mobile": "?0",
-//     "sec-ch-ua-platform": "\"Windows\"",
-//     "sec-fetch-dest": "empty",
-//     "sec-fetch-mode": "cors",
-//     "sec-fetch-site": "same-site"
-//   },
-//   "referrer": "https://act.hoyolab.com/",
-//   "referrerPolicy": "strict-origin-when-cross-origin",
-//   "body": "{\"act_id\":\"e202102251931481\"}",
-//   "method": "POST",
-//   "mode": "cors",
-//   "credentials": "include"
-// });
-// cookie: mi18nLang=en-us; _MHYUUID=5ca37bbe-de66-4c87-8509-e3e51eb94e58; DEVICEFP_SEED_ID=291b04db126bbf2f; DEVICEFP_SEED_TIME=1666923188358; DEVICEFP=38d7eafefdad9; _ga=GA1.2.1160952229.1666923189; _gid=GA1.2.2134928089.1666923189; _gat_gtag_UA_201411121_1=1; ltoken=jcoOfAJNBFLHj4KK4nT87IX1a97Wj0weMvr9OBxE; ltuid=1104305; cookie_token=2xHLthsjoMlWkdWTDqoJcXrS7NosQsOWBxN0P0rj; account_id=1104305; _ga_54PBK3QDF4=GS1.1.1666923189.1.1.1666923238.0.0.0
-
-// fetch("https://sg-hk4e-api.hoyolab.com/event/sol/info?lang=en-us&act_id=e202102251931481", {
-//   "headers": {
-//     "accept": "application/json, text/plain, */*",
-//     "accept-language": "en-US,en;q=0.9,th;q=0.8",
-//     "cache-control": "no-cache",
-//     "pragma": "no-cache",
-//     "sec-ch-ua": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\"",
-//     "sec-ch-ua-mobile": "?0",
-//     "sec-ch-ua-platform": "\"Windows\"",
-//     "sec-fetch-dest": "empty",
-//     "sec-fetch-mode": "cors",
-//     "sec-fetch-site": "same-site"
-//   },
-//   "referrer": "https://act.hoyolab.com/",
-//   "referrerPolicy": "strict-origin-when-cross-origin",
-//   "body": null,
-//   "method": "GET",
-//   "mode": "cors",
-//   "credentials": "include"
-// });
