@@ -37,7 +37,7 @@ jobs:
     - name: Output Veriables
       id: vars
       run: |
-        echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        echo ::set-output name=tag::${github.ref#refs/*/}
         echo ::set-output name=zip::hoyolab-${GITHUB_REF#refs/*/}-${{ matrix.name }}.zip
 
     - name: Test
@@ -64,7 +64,6 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ steps.vars.outputs.tag }}
-        asset_path: ${{ steps.vars.outputs.zip }}
         prerelease: true
         draft: false
 
@@ -75,6 +74,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
-        asset_path: ${{ steps.vars.outputs.zip }}
+        asset_path: ./
         asset_name: ${{ steps.vars.outputs.zip }}
         asset_content_type: application/zip
