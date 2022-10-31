@@ -47,7 +47,9 @@ jobs:
       uses: vimtor/action-zip@v1
       with:
         files: hoyolab.exe README.md
-        dest: ./hoyolab-$GITHUB_REF_NAME-${{ matrix.name }}.zip
+        dest: ./hoyolab-${{ github.ref_name }}-${{ matrix.name }}.zip
+
+    - run: dir
 
     - name: Create Release
       if: success() && !contains(github.ref, 'main')
@@ -57,9 +59,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release $GITHUB_REF_NAME
-        prerelease: true
-        draft: false
+        release_name: Hoyolab ${{ github.ref_name }}
+        draft: true
 
     - name: Upload Release
       if: success() && !contains(github.ref, 'main')
@@ -69,5 +70,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
         asset_path: ./
-        asset_name: ./hoyolab-$GITHUB_REF_NAME-${{ matrix.name }}.zip
+        asset_name: ./hoyolab-${{ github.ref_name }}-${{ matrix.name }}.zip
         asset_content_type: application/zip
