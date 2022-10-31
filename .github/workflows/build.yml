@@ -19,10 +19,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go
+    - name: Set up Golang
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+        
+    - name: Set up ZIP
+      uses: montudor/action-zip@v1
 
     - name: Caches
       uses: actions/cache@v3
