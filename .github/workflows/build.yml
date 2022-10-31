@@ -23,9 +23,6 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
-        
-    - name: Set up ZIP
-      uses: montudor/action-zip@v1
 
     - name: Caches
       uses: actions/cache@v3
@@ -50,7 +47,13 @@ jobs:
       if: success()
       run: |
         go build -ldflags -H=windowsgui .
-        zip ${{ steps.vars.outputs.zip }} hoyolab.exe README.md
+
+    - name: Zip
+      if: success()
+      uses: vimtor/action-zip@v1
+      with:
+        files: hoyolab.exe README.md
+        dest: ${{ steps.vars.outputs.zip }}
 
     - name: Create Release
       if: success() && !contains(github.ref, 'main')
