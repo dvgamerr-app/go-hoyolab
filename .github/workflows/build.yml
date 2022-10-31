@@ -12,8 +12,9 @@ jobs:
   build:
     strategy:
       matrix:
-        go-version: [1.18.x, ]
+        go-version: [1.19]
         os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
+        name: [x64-windows-amd64]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -21,7 +22,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.19
+        go-version: ${{ matrix.go-version }}
 
     - name: Caches
       uses: actions/cache@v3
@@ -33,13 +34,24 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-golang-
 
-    - name: Build
-      run: go build -ldflags -H=windowsgui .
-
     - name: Test
       run: go test -v .
 
+    - name: Build
+      if: success()
+      id: build
+      run: |
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=v$(echo $VERSION | sed -e 's/^v//')
+
+        zipfile=hoyolab-$VERSION-${{ matrix.name }}.zip
+        echo ::set-output name=zipfile::${zipfile}
+
+        go build -ldflags -H=windowsgui .
+        zip $zipfile hoyolab.exe README.md
+
     - name: Create Release
+      if: success() && !contains(github.ref, 'main')
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -51,11 +63,12 @@ jobs:
         prerelease: false
 
     - name: Upload Release
+      if: success() && !contains(github.ref, 'main')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
-        asset_path: ./my-artifact.zip
-        asset_name: my-artifact.zip
+        asset_path: ${{ steps.build.outputs.zipfile }}
+        asset_name: ${{ steps.build.outputs.zipfile }}
         asset_content_type: application/zip
