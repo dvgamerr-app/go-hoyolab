@@ -18,6 +18,7 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 
 - [x] cliams checkin daily with chrome session.
 - [x] all profile chrome session.
+- [ ] update new version from github automatic
 - [ ] install schedule task with windows-os automatic.
 - [ ] command line `hoyolab` support all os.
 - [ ] support session with all browser.
