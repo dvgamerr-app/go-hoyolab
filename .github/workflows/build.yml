@@ -34,12 +34,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-golang-
 
-    - name: Output Veriables
-      id: vars
-      run: |
-        echo ::set-output name=tag::${github.ref#refs/*/}
-        echo ::set-output name=zip::hoyolab-${GITHUB_REF#refs/*/}-${{ matrix.name }}.zip
-
     - name: Test
       run: go test -v .
 
@@ -53,12 +47,7 @@ jobs:
       uses: vimtor/action-zip@v1
       with:
         files: hoyolab.exe README.md
-        dest: ${{ steps.vars.outputs.zip }}
-
-    - run: |
-        echo zip: ${{ steps.vars.outputs.zip }}
-        echo tag: ${{ steps.vars.outputs.tag }}
-        dir
+        dest: ./hoyolab-$GITHUB_REF_NAME-${{ matrix.name }}.zip
 
     - name: Create Release
       if: success() && !contains(github.ref, 'main')
@@ -68,7 +57,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ steps.vars.outputs.tag }}
+        release_name: Release $GITHUB_REF_NAME
         prerelease: true
         draft: false
 
@@ -80,5 +69,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
         asset_path: ./
-        asset_name: ./${{ steps.vars.outputs.zip }}
+        asset_name: ./hoyolab-$GITHUB_REF_NAME-${{ matrix.name }}.zip
         asset_content_type: application/zip
