@@ -55,6 +55,11 @@ jobs:
         files: hoyolab.exe README.md
         dest: ${{ steps.vars.outputs.zip }}
 
+    - run: |
+        echo zip: ${{ steps.vars.outputs.zip }}
+        echo tag: ${{ steps.vars.outputs.tag }}
+        dir
+
     - name: Create Release
       if: success() && !contains(github.ref, 'main')
       id: create_release
