@@ -80,10 +80,15 @@ func main() {
 				Sign:     "/event/sol/sign",
 				Info:     "/event/sol/info",
 			},
-			Browser:   "chrome",
-			Lang:      "en-us",
-			Referer:   "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html",
-			UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+			Browser: []BrowserProfile{
+				{
+					Browser:   "chrome",
+					Profile:   []string{"dvgamerr", "dvgamer"},
+					UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+				},
+			},
+			Lang:    "en-us",
+			Referer: "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html",
 		},
 	}
 
@@ -131,12 +136,17 @@ func main() {
 		hoyo.SetCookie(cookies.Cookies(uri))
 
 		if len(hoyo.CookieJar) == 0 {
-			log.Fatalf("%s::Cookie is empty, please login hoyolab.com.", store.Browser())
+			log.Printf("%s::Cookie is empty, please login hoyolab.com.", store.Browser())
+			continue
 		}
 
 		resInfo, err := hoyo.DailyInfo()
-		if err != nil || resInfo.RetCode != 0 {
+		if err != nil {
 			log.Fatalf("Hoyolab::DailyInfo: %v", err)
+		}
+		if resInfo.RetCode != 0 {
+			log.Printf("Hoyolab::DailyInfo: %v", resInfo.Message)
+			continue
 		}
 		// log.Printf("Hoyolab::DailyInfo:%+v", resInfo.Data)
 

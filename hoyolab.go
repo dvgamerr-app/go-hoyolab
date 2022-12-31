@@ -23,11 +23,17 @@ type DailyAPI struct {
 }
 
 type DailyHoyolab struct {
-	ActID     string   `yaml:"act_id"`
-	API       DailyAPI `yaml:"api"`
+	ActID     string           `yaml:"act_id"`
+	API       DailyAPI         `yaml:"api"`
+	Lang      string           `yaml:"lang"`
+	Referer   string           `yaml:"referer"`
+	UserAgent string           `yaml:"userAgent"`
+	Browser   []BrowserProfile `yaml:"profile"`
+}
+
+type BrowserProfile struct {
 	Browser   string   `yaml:"browser"`
-	Lang      string   `yaml:"lang"`
-	Referer   string   `yaml:"referer"`
+	Profile   []string `yaml:"profile"`
 	UserAgent string   `yaml:"userAgent"`
 }
 
@@ -124,13 +130,13 @@ func (hoyo *Hoyolab) DailySign() (*ActAPI, error) {
 		return nil, fmt.Errorf("hoyo::%s", "DailyInfo - CookieJar is empty")
 	}
 
-	if IsDebug {
-		return &ActAPI{
-			RetCode: 0,
-			Message: "OK",
-			Data:    ActSign{Code: "ok"},
-		}, nil
-	}
+	// if IsDebug {
+	// 	return &ActAPI{
+	// 		RetCode: 0,
+	// 		Message: "OK",
+	// 		Data:    ActSign{Code: "ok"},
+	// 	}, nil
+	// }
 
 	raw, err := hoyo.
 		ActRequest().
