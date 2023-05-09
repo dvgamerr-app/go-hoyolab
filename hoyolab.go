@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/go-resty/resty/v2"
@@ -24,23 +25,24 @@ type DailyAPI struct {
 }
 
 type DailyHoyolab struct {
+	Label     string         `yaml:"label"`
 	ActID     string         `yaml:"act_id"`
 	API       DailyAPI       `yaml:"api"`
 	Lang      string         `yaml:"lang"`
 	Referer   string         `yaml:"referer"`
-	CookieJar []*http.Cookie `yaml:"cookie"`
+	CookieJar []*http.Cookie `yaml:"cookie,omitempty"`
 }
 
 type BrowserProfile struct {
 	Browser   string   `yaml:"browser"`
-	Profile   []string `yaml:"profile"`
+	Name      []string `yaml:"name"`
 	UserAgent string   `yaml:"userAgent"`
 }
 
 type Hoyolab struct {
-	Client  *resty.Client
+	Client  *resty.Client    `yaml:"client,omitempty"`
 	Browser []BrowserProfile `yaml:"profile"`
-	Daily   []*DailyHoyolab
+	Daily   []*DailyHoyolab  `yaml:"config"`
 }
 
 type ActAPI struct {
@@ -69,7 +71,8 @@ func init() {
 }
 
 func (hoyo *Hoyolab) WriteHoyoConfig() error {
-	raw, err := yaml.Marshal(map[string]interface{}{"config": hoyo.Daily})
+	hoyo.Client = nil
+	raw, err := yaml.Marshal(hoyo)
 	if err != nil {
 		return fmt.Errorf("yaml Marshal::%s", err)
 	}
@@ -80,33 +83,56 @@ func (hoyo *Hoyolab) WriteHoyoConfig() error {
 	return nil
 }
 
-func (hoyo *Hoyolab) ReadHoyoConfig() ([]*DailyHoyolab, error) {
+func (hoyo *Hoyolab) ReadHoyoConfig() error {
 	raw, err := os.ReadFile(configPath)
 	if err != nil {
 		log.Println("Default configuration created.")
 		hoyo.WriteHoyoConfig()
-		return hoyo.Daily, nil
+		return nil
 	}
 
-	var hoyoFile map[string][]*DailyHoyolab
-	err = yaml.Unmarshal(raw, &hoyoFile)
+	var readHoyo *Hoyolab
+	err = yaml.Unmarshal(raw, &readHoyo)
 	if err != nil {
 		log.Println("Default configuration created.")
 		hoyo.WriteHoyoConfig()
-		return hoyo.Daily, nil
+		return nil
 	} else {
 		log.Println("Configuration readed.")
-		return hoyoFile["config"], nil
+		hoyo.Browser = readHoyo.Browser
+		hoyo.Daily = readHoyo.Daily
+		return nil
 	}
+}
+
+func (hoyo *Hoyolab) IsCookieToken(cookies http.CookieJar) bool {
+	for _, act := range hoyo.Daily {
+		uri, _ := url.Parse(act.API.Domain)
+		act.SetCookie(cookies.Cookies(uri))
+		if !act.IsCookieLogin() {
+			act.CookieJar = nil
+			return false
+		}
+	}
+	return true
 }
 
 // var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
 
-// func (hoyo *Hoyolab) SetCookie(rs []*http.Cookie) {
-// 	hoyo.Daily = rs
-// }
+func (e *DailyHoyolab) SetCookie(rs []*http.Cookie) {
+	e.CookieJar = rs
+}
 
-// func (hoyo *Hoyolab) ActRequest() *resty.Request {
+func (e *DailyHoyolab) IsCookieLogin() bool {
+	for _, jar := range e.CookieJar {
+		if jar.Name == "ltoken" {
+			return true
+		}
+	}
+	return false
+}
+
+// func (hoyo *DailyHoyolab) ActRequest() *resty.Request {
 // 	return hoyo.Client.R().
 // 		SetHeaders(hoyo.generateHeaders()).
 // 		SetQueryParams(map[string]string{
@@ -115,7 +141,7 @@ func (hoyo *Hoyolab) ReadHoyoConfig() ([]*DailyHoyolab, error) {
 // 		})
 // }
 
-// func (hoyo *Hoyolab) DailyInfo() (*ActAPI, error) {
+// func (hoyo *DailyHoyolab) DailyInfo() (*ActAPI, error) {
 // 	if len(hoyo.CookieJar) == 0 {
 // 		return nil, fmt.Errorf("hoyo::%s", "DailyInfo - CookieJar is empty")
 // 	}
@@ -159,7 +185,7 @@ func (hoyo *Hoyolab) ReadHoyoConfig() ([]*DailyHoyolab, error) {
 // 	return &res, nil
 // }
 
-// func (hoyo *Hoyolab) DailySign() (*ActAPI, error) {
+// func (hoyo *DailyHoyolab) DailySign() (*ActAPI, error) {
 // 	if len(hoyo.CookieJar) == 0 {
 // 		return nil, fmt.Errorf("hoyo::%s", "DailyInfo - CookieJar is empty")
 // 	}
@@ -195,7 +221,7 @@ func (hoyo *Hoyolab) ReadHoyoConfig() ([]*DailyHoyolab, error) {
 // 	return &resSign, nil
 // }
 
-// func (hoyo *Hoyolab) generateHeaders() map[string]string {
+// func (hoyo *DailyHoyolab) generateHeaders() map[string]string {
 // 	uri, _ := url.Parse(hoyo.Daily.Referer)
 // 	return map[string]string{
 // 		"Accept":          "application/json, text/plain, */*",

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/zellyn/kooky"
@@ -68,40 +69,35 @@ func main() {
 	// 	fmt.Println(exPath)
 	// }
 	hoyo := GenerateDefaultConfig()
-	apiHoyo, err := hoyo.ReadHoyoConfig()
-	if err != nil {
+	if err := hoyo.ReadHoyoConfig(); err != nil {
 		log.Fatal(err)
 	}
-	hoyo.Daily = apiHoyo
 
 	cookieStore := kooky.FindAllCookieStores()
 	log.Printf("Browser total %d sessions", len(cookieStore))
 	for _, store := range cookieStore {
-		_, err = os.Stat(store.FilePath())
-		if os.IsNotExist(err) {
+		if _, err := os.Stat(store.FilePath()); os.IsNotExist(err) {
 			continue
 		}
 
-		for _, act := range hoyo.Browser {
-			if len(act.Profile) > 0 && (store.Browser() != act.Browser || !ContainsStrings(act.Profile, store.Profile())) {
+		for _, profile := range hoyo.Browser {
+			if len(profile.Name) > 0 && (store.Browser() != profile.Browser || !ContainsStrings(profile.Name, store.Profile())) {
 				continue
 			}
-			log.Printf("Allow '%s' :: '%s'", store.Browser(), store.Profile())
+			log.Printf(`Profile %s::"%s"`, store.Browser(), store.Profile())
 
-			_, err := chrome.CookieJar(store.FilePath())
+			cookies, err := chrome.CookieJar(store.FilePath())
 			if err != nil {
 				log.Fatal(err)
 			}
 
+			if !hoyo.IsCookieToken(cookies) {
+				log.Println(" - Session is empty, please login hoyolab.com.")
+				continue
+			}
+
+			time.Sleep(1 * time.Second)
 		}
-
-		// 	uri, _ := url.Parse(hoyo.Daily.API.Domain)
-		// 	hoyo.SetCookie(cookies.Cookies(uri))
-
-		// 	if len(hoyo.CookieJar) == 0 {
-		// 		log.Printf("%s::Cookie is empty, please login hoyolab.com.", store.Browser())
-		// 		continue
-		// 	}
 
 		// 	resInfo, err := hoyo.DailyInfo()
 		// 	if err != nil {
@@ -147,6 +143,7 @@ func GenerateDefaultConfig() *Hoyolab {
 	// {"retcode":0,"message":"OK","data":{"total_sign_day":11,"today":"2022-10-29","is_sign":false,"first_bind":false,"is_sub":true,"region":"os_asia","month_last_day":false}}
 	var apiGenshinImpact = &DailyHoyolab{
 		CookieJar: []*http.Cookie{},
+		Label:     "Genshin Impact",
 		ActID:     "e202102251931481",
 		API: DailyAPI{
 			Endpoint: "https://sg-hk4e-api.hoyolab.com",
@@ -169,6 +166,7 @@ func GenerateDefaultConfig() *Hoyolab {
 	//
 	var apiHonkaiStarRail = &DailyHoyolab{
 		CookieJar: []*http.Cookie{},
+		Label:     "Honkai StarRail",
 		ActID:     "e202303301540311",
 		API: DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com/",
@@ -185,6 +183,7 @@ func GenerateDefaultConfig() *Hoyolab {
 	// https: //act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111
 	var apiHonkaiImpact = &DailyHoyolab{
 		CookieJar: []*http.Cookie{},
+		Label:     "Honkai Impact 3",
 		ActID:     "e202110291205111",
 		API: DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
@@ -200,8 +199,9 @@ func GenerateDefaultConfig() *Hoyolab {
 		Client: resty.New(),
 		Browser: []BrowserProfile{
 			{
-				Browser:   "chrome",
-				Profile:   []string{"dvgamer", "dvgamerr"},
+				Browser: "chrome",
+				Name:    []string{"dvgamer", "dvgamerr"},
+				// Name:      []string{"Kananek"},
 				UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
 			},
 		},
