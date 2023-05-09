@@ -14,6 +14,14 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 3. run `hoyolab.exe`.
 4. If found Error please craete issues in [https://github.com/dvgamerr/go-hoyolab/issues](https://github.com/dvgamerr/go-hoyolab/issues)
 
+## Solution for Automatic
+- use `Task Scheduler` and `Create Basic Task`
+- select `When I log on` If you turn on Computer every day, or Select `Daily` If your run cumputer 24/7.
+
+![image](https://user-images.githubusercontent.com/10203425/236996927-cb76c5be-09be-409c-8cb2-743bb0204d1a.png)
+
+- after click Next select `Start a program`, Next and browse `hoyolab.exe`
+
 ## Features
 
 - [x] cliams checkin daily with chrome session.
