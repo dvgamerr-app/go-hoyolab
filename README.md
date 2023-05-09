@@ -8,6 +8,7 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 
 ### In Progress
 - [ ] Honkai StarRail cliams reward support.
+- [ ] Honkai Impact 3 cliams reward support.
 
 ## How to use
 1. Open chrome browser open [https://www.hoyolab.com/home](https://www.hoyolab.com/home)
@@ -24,7 +25,6 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 - after click Next select `Start a program`, Next and browse `hoyolab.exe`
 
 ## Todos
-- [ ] Honkai Impact 3 cliams reward support.
 - [ ] update new version from github automatic
 - [ ] install schedule task with windows-os automatic.
 - [ ] command line `hoyolab` support all os.
