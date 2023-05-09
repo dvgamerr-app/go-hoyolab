@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -30,6 +31,7 @@ type DailyHoyolab struct {
 	API       DailyAPI       `yaml:"api"`
 	Lang      string         `yaml:"lang"`
 	Referer   string         `yaml:"referer"`
+	UserAgent string         `yaml:"user-agent,omitempty"`
 	CookieJar []*http.Cookie `yaml:"cookie,omitempty"`
 }
 
@@ -80,6 +82,7 @@ func (hoyo *Hoyolab) WriteHoyoConfig() error {
 	if err != nil {
 		return fmt.Errorf("yaml Write::%s", err)
 	}
+	hoyo.Client = resty.New()
 	return nil
 }
 
@@ -132,58 +135,54 @@ func (e *DailyHoyolab) IsCookieLogin() bool {
 	return false
 }
 
-// func (hoyo *DailyHoyolab) ActRequest() *resty.Request {
-// 	return hoyo.Client.R().
-// 		SetHeaders(hoyo.generateHeaders()).
-// 		SetQueryParams(map[string]string{
-// 			"lang":   hoyo.Daily.Lang,
-// 			"act_id": hoyo.Daily.ActID,
-// 		})
-// }
+func (hoyo *Hoyolab) ActRequest(act *DailyHoyolab) *resty.Request {
+	return hoyo.Client.R().
+		SetHeaders(act.generateHeaders()).
+		SetQueryParams(map[string]string{
+			"lang":   act.Lang,
+			"act_id": act.ActID,
+		})
+}
 
-// func (hoyo *DailyHoyolab) DailyInfo() (*ActAPI, error) {
-// 	if len(hoyo.CookieJar) == 0 {
-// 		return nil, fmt.Errorf("hoyo::%s", "DailyInfo - CookieJar is empty")
-// 	}
+func (e *DailyHoyolab) DailyInfo(hoyo *Hoyolab) (*ActAPI, error) {
+	raw, err := hoyo.ActRequest(e).
+		SetCookies(e.CookieJar).
+		Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Info))
 
-// 	raw, err := hoyo.ActRequest().
-// 		SetCookies(hoyo.CookieJar).
-// 		Get(hoyo.Daily.API.Endpoint + hoyo.Daily.API.Info)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	if raw.StatusCode() != 200 {
+		return nil, fmt.Errorf("hoyo::%s - %s", "DailyInfo", raw.Status())
+	}
 
-// 	if raw.StatusCode() != 200 {
-// 		return nil, fmt.Errorf("hoyo::%s - %s", "DailyInfo", raw.Status())
-// 	}
+	// log.Println("DailyInfo:\n", raw)
 
-// 	// log.Println("DailyInfo:\n", raw)
+	var (
+		res ActAPI
+		act ActInfo
+	)
 
-// 	var (
-// 		res ActAPI
-// 		act ActInfo
-// 	)
+	err = json.Unmarshal(raw.Body(), &res)
+	if err != nil {
+		return nil, fmt.Errorf("json::%s", "Unmarshal: ActAPI")
+	}
 
-// 	err = json.Unmarshal(raw.Body(), &res)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("json::%s", "Unmarshal: ActAPI")
-// 	}
+	data, err := json.Marshal(res.Data)
+	if err != nil {
+		return nil, fmt.Errorf("json::%s", "Marshal: interface{}")
+	}
 
-// 	data, err := json.Marshal(res.Data)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("json::%s", "Marshal: interface{}")
-// 	}
+	err = json.Unmarshal(data, &act)
+	if err != nil {
+		return nil, fmt.Errorf("json::%s", "Unmarshal: ActAPI")
+	}
 
-// 	err = json.Unmarshal(data, &act)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("json::%s", "Unmarshal: ActAPI")
-// 	}
+	res.Data = act
 
-// 	res.Data = act
-
-// 	return &res, nil
-// }
+	return &res, nil
+}
 
 // func (hoyo *DailyHoyolab) DailySign() (*ActAPI, error) {
 // 	if len(hoyo.CookieJar) == 0 {
@@ -221,20 +220,15 @@ func (e *DailyHoyolab) IsCookieLogin() bool {
 // 	return &resSign, nil
 // }
 
-// func (hoyo *DailyHoyolab) generateHeaders() map[string]string {
-// 	uri, _ := url.Parse(hoyo.Daily.Referer)
-// 	return map[string]string{
-// 		"Accept":          "application/json, text/plain, */*",
-// 		"Accept-Language": "en-US,en;q=0.9,th;q=0.8",
-// 		"Cache-Control":   "no-cache",
-// 		"Connection":      "keep-alive",
-// 		"Content-Type":    "application/json;charset=UTF-8",
-// 		"Pragma":          "no-cache",
-// 		"Referer":         fmt.Sprintf("%s?act_id=%s&lang=%s", hoyo.Daily.Referer, hoyo.Daily.ActID, hoyo.Daily.Lang),
-// 		"Origin":          fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-// 		"User-Agent":      hoyo.Daily.UserAgent,
-// 		"referrerPolicy":  "strict-origin-when-cross-origin",
-// 		"mode":            "cors",
-// 		"credentials":     "include",
-// 	}
-// }
+func (e *DailyHoyolab) generateHeaders() map[string]string {
+	uri, _ := url.Parse(e.Referer)
+	return map[string]string{
+		"Accept":          "application/json, text/plain, */*",
+		"Accept-Language": "en-US,en;q=0.9,th;q=0.8",
+		"Connection":      "keep-alive",
+		"Content-Type":    "application/json;charset=UTF-8",
+		"Referer":         fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"Origin":          fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"User-Agent":      e.UserAgent,
+	}
+}

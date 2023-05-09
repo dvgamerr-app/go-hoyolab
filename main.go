@@ -96,18 +96,24 @@ func main() {
 				continue
 			}
 
-			time.Sleep(1 * time.Second)
-		}
+			for i := 0; i < len(hoyo.Daily); i++ {
+				act := hoyo.Daily[i]
+				act.UserAgent = profile.UserAgent
 
-		// 	resInfo, err := hoyo.DailyInfo()
-		// 	if err != nil {
-		// 		log.Fatalf("Hoyolab::DailyInfo: %v", err)
-		// 	}
-		// 	if resInfo.RetCode != 0 {
-		// 		log.Printf("Hoyolab::DailyInfo: %v", resInfo.Message)
-		// 		continue
-		// 	}
-		// 	// log.Printf("Hoyolab::DailyInfo:%+v", resInfo.Data)
+				// Get Info of Awards
+				resInfo, err := act.DailyInfo(hoyo)
+				if err != nil {
+					log.Printf(" - %s::DailyInfo: %v", act.Label, err)
+					continue
+				}
+				if resInfo.RetCode != 0 {
+					log.Printf(" - %s::DailyInfo: %v", act.Label, resInfo.Message)
+					continue
+				}
+				log.Printf(" - %s::DailyInfo:\n%+v\n", act.Label, resInfo)
+				time.Sleep(1 * time.Second)
+			}
+		}
 
 		// 	actInfo, ok := resInfo.Data.(ActInfo)
 		// 	if !ok {
@@ -169,7 +175,7 @@ func GenerateDefaultConfig() *Hoyolab {
 		Label:     "Honkai StarRail",
 		ActID:     "e202303301540311",
 		API: DailyAPI{
-			Endpoint: "https://sg-public-api.hoyolab.com/",
+			Endpoint: "https://sg-public-api.hoyolab.com",
 			Domain:   "https://hoyolab.com",
 			Award:    "/event/luna/os/home",
 			Info:     "/event/luna/os/info",
@@ -200,11 +206,15 @@ func GenerateDefaultConfig() *Hoyolab {
 		Browser: []BrowserProfile{
 			{
 				Browser: "chrome",
-				Name:    []string{"dvgamer", "dvgamerr"},
+				Name:    []string{"dvgamer"},
 				// Name:      []string{"Kananek"},
 				UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
 			},
 		},
-		Daily: []*DailyHoyolab{apiGenshinImpact, apiHonkaiStarRail, apiHonkaiImpact},
+		Daily: []*DailyHoyolab{
+			apiGenshinImpact,
+			apiHonkaiStarRail,
+			apiHonkaiImpact,
+		},
 	}
 }
