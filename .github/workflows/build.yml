@@ -41,8 +41,7 @@ jobs:
 
     - name: Build
       if: success()
-      shell: sh
-      run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} go build -ldflags -H=windowsgui .
+      run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} go build .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
