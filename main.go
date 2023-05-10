@@ -96,6 +96,7 @@ func main() {
 			var resAcc *act.ActUser
 			hoyo.Client = resty.New()
 
+			var getDaySign int32 = -1
 			var getAward []string = []string{}
 			for i := 0; i < len(hoyo.Daily); i++ {
 				act := hoyo.Daily[i]
@@ -122,13 +123,6 @@ func main() {
 					continue
 				}
 
-				award := resAward.Awards[resInfo.TotalSignDay+1]
-				if hoyo.Notify.Mini {
-					getAward = append(getAward, fmt.Sprintf("%s x%d (%s)", award.Name, award.Count, act.Label))
-				} else {
-					getAward = append(getAward, fmt.Sprintf("*[%s]* received %s x%d", act.Label, award.Name, award.Count))
-				}
-
 				log.Printf("%s::GetCheckInInfo : Checked in for %d days", act.Label, resInfo.TotalSignDay)
 				if resInfo.IsSign {
 					log.Printf("%s::DailySignIn    : Claimed %s", act.Label, resInfo.Today)
@@ -140,12 +134,28 @@ func main() {
 					log.Printf("%s::DailySignIn    : %v", act.Label, err)
 					continue
 				}
+
+				if getDaySign < 0 {
+					getDaySign = resInfo.TotalSignDay + 1
+				}
+
+				award := resAward.Awards[resInfo.TotalSignDay+1]
 				log.Printf("%s::GetMonthAward  : Today's received %s x%d", act.Label, award.Name, award.Count)
+
+				if hoyo.Notify.Mini {
+					getAward = append(getAward, fmt.Sprintf("*%s x%d* (%s)", award.Name, award.Count, act.Label))
+				} else {
+					getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d received %s x%d", act.Label, resInfo.TotalSignDay+1, award.Name, award.Count))
+				}
 
 			}
 			if len(getAward) > 0 {
+				if len(hoyo.Browser) > 1 {
+					notifyMessage = append(notifyMessage, "\n")
+				}
+
 				if hoyo.Notify.Mini {
-					notifyMessage = append(notifyMessage, fmt.Sprintf("%s at Day %d your got %s", resAcc.UserInfo.NickName, 1, strings.Join(getAward, ", ")))
+					notifyMessage = append(notifyMessage, fmt.Sprintf("%s, at day %d your got %s", resAcc.UserInfo.NickName, getDaySign, strings.Join(getAward, ", ")))
 				} else {
 					notifyMessage = append(notifyMessage, fmt.Sprintf("\nHi, %s Checked in for %d days.\n%s", resAcc.UserInfo.NickName, 1, strings.Join(getAward, "\n")))
 				}
