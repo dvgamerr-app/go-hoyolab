@@ -55,13 +55,20 @@ type ActSign map[string]any
 func (e *DailyHoyolab) generateHeaders() map[string]string {
 	uri, _ := url.Parse(e.Referer)
 	return map[string]string{
-		"Accept":          "application/json, text/plain, */*",
-		"Accept-Language": "en-US,en;q=0.9,th;q=0.8",
-		"Connection":      "keep-alive",
-		"Content-Type":    "application/json;charset=UTF-8",
-		"Referer":         fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-		"Origin":          fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-		"User-Agent":      e.UserAgent,
+		"Accept":             "application/json, text/plain, */*",
+		"Accept-Encoding":    "gzip, deflate, br",
+		"Accept-Language":    "en-US,en;q=0.9,th;q=0.8",
+		"Connection":         "keep-alive",
+		"Content-Type":       "application/json;charset=UTF-8",
+		"Referer":            fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"Origin":             fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"User-Agent":         e.UserAgent,
+		"Sec-Ch-Ua":          `"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"`,
+		"Sec-Ch-Ua-Mobile":   `?0`,
+		"Sec-Ch-Ua-Platform": `"Windows"`,
+		"Sec-Fetch-Mode":     `cors`,
+		"Sec-Fetch-Site":     `same-site`,
+		"Sec-Fetch-Dest":     `empty`,
 	}
 }
 
@@ -82,7 +89,7 @@ func actResponse[T any](raw *resty.Response, actData *T) error {
 	}
 
 	if res.RetCode != 0 {
-		return fmt.Errorf("res::RetCode: %s", res.Message)
+		return fmt.Errorf(" %s", res.Message)
 	}
 
 	data, err := json.Marshal(res.Data)
@@ -122,7 +129,29 @@ func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 	return &res, nil
 }
 
+func (e *DailyHoyolab) GetUserFull(hoyo *Hoyolab) (*ActSign, error) {
+	time.Sleep(1 * time.Second)
+	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
+	if err != nil {
+		return nil, fmt.Errorf("hoyo::%+v", err)
+	}
+	if raw.StatusCode() != 200 {
+		return nil, fmt.Errorf("hoyo::%s", raw.Status())
+	}
+
+	var res ActSign
+	if err := actResponse(raw, &res); err != nil {
+		return nil, fmt.Errorf("hoyo::%+v", err)
+	}
+
+	if IsDebug {
+		log.Printf("%s::%+v\n", e.Label, res)
+	}
+	return &res, nil
+}
+
 func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
+	time.Sleep(550 * time.Millisecond)
 	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Info))
 	if err != nil {
 		return nil, fmt.Errorf("hoyo::%+v", err)
@@ -143,6 +172,7 @@ func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
 }
 
 func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (*ActSign, error) {
+	time.Sleep(1 * time.Second)
 	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
 	if err != nil {
 		return nil, fmt.Errorf("hoyo::%+v", err)

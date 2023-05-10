@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"hoyolab/act"
 
@@ -44,7 +45,7 @@ func init() {
 		logPath = path.Join(dirname, logPath)
 	}
 	log.SetFlags(log.Lshortfile | log.Ltime)
-	if !act.IsDebug {
+	if !act.IsDev {
 		log.SetFlags(log.Ldate | log.Ltime)
 		f, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
@@ -86,6 +87,7 @@ func main() {
 				log.Println("Session is empty, please login hoyolab.com.")
 				continue
 			}
+			time.Sleep(1 * time.Second)
 
 			for i := 0; i < len(hoyo.Daily); i++ {
 				act := hoyo.Daily[i]

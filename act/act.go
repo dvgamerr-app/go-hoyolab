@@ -47,9 +47,12 @@ type Hoyolab struct {
 const DEBUG string = "DEBUG"
 
 var IsDebug bool = false
+var IsDev bool = false
 
 func init() {
-	goenv.Load()
+	if err := goenv.Load(); err == nil {
+		IsDev = true
+	}
 	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
 }
 
@@ -102,6 +105,12 @@ func (hoyo *Hoyolab) IsCookieToken(cookies http.CookieJar) bool {
 }
 
 func (e *DailyHoyolab) SetCookie(rs []*http.Cookie) {
+	for _, jar := range rs {
+		if jar.Name == "ltoken" {
+			log.Printf("Profile ltoken: %s", jar.Value)
+			break
+		}
+	}
 	e.CookieJar = rs
 }
 
