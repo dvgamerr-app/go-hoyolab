@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/tmilewski/goenv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,6 +42,15 @@ type Hoyolab struct {
 	Delay   int32            `yaml:"delay"`
 	Browser []BrowserProfile `yaml:"profile"`
 	Daily   []*DailyHoyolab  `yaml:"config"`
+}
+
+const DEBUG string = "DEBUG"
+
+var IsDebug bool = false
+
+func init() {
+	goenv.Load()
+	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
 }
 
 func (hoyo *Hoyolab) WriteHoyoConfig(configPath string) error {

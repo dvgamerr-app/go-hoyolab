@@ -3,6 +3,7 @@ package act
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"reflect"
 	"time"
@@ -47,9 +48,7 @@ type ActInfo struct {
 	MonthLastDay bool   `json:"month_last_day"`
 }
 
-type ActSign struct {
-	Code string `json:"code"`
-}
+type ActSign map[string]any
 
 // var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
 
@@ -67,8 +66,8 @@ func (e *DailyHoyolab) generateHeaders() map[string]string {
 }
 
 func (hoyo *Hoyolab) ActRequest(act *DailyHoyolab) *resty.Request {
-	// delay request 100ms.
-	time.Sleep(100 * time.Millisecond)
+	// delay request 150ms default.
+	time.Sleep(time.Duration(hoyo.Delay) * time.Millisecond)
 
 	return hoyo.Client.R().
 		SetCookies(act.CookieJar).
@@ -98,7 +97,7 @@ func actResponse[T any](raw *resty.Response, actData *T) error {
 	return nil
 }
 
-func (e *DailyHoyolab) DailyAward(hoyo *Hoyolab) (*ActAward, error) {
+func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Award))
 	if err != nil {
 		return nil, fmt.Errorf("hoyo::%+v", err)
@@ -112,10 +111,18 @@ func (e *DailyHoyolab) DailyAward(hoyo *Hoyolab) (*ActAward, error) {
 		return nil, fmt.Errorf("hoyo::%+v", err)
 	}
 
+	if IsDebug {
+		log.Printf("%s::%+v\n", e.Label, map[string]any{
+			"Month":      res.Month,
+			"Biz":        res.Biz,
+			"Resign":     res.Resign,
+			"ExtraAward": res.ExtraAward,
+		})
+	}
 	return &res, nil
 }
 
-func (e *DailyHoyolab) DailyInfo(hoyo *Hoyolab) (*ActInfo, error) {
+func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
 	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Info))
 	if err != nil {
 		return nil, fmt.Errorf("hoyo::%+v", err)
@@ -129,10 +136,13 @@ func (e *DailyHoyolab) DailyInfo(hoyo *Hoyolab) (*ActInfo, error) {
 		return nil, fmt.Errorf("hoyo::%+v", err)
 	}
 
+	if IsDebug {
+		log.Printf("%s::%+v\n", e.Label, res)
+	}
 	return &res, nil
 }
 
-func (e *DailyHoyolab) DailySign(hoyo *Hoyolab) (*ActSign, error) {
+func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (*ActSign, error) {
 	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
 	if err != nil {
 		return nil, fmt.Errorf("hoyo::%+v", err)
@@ -146,5 +156,8 @@ func (e *DailyHoyolab) DailySign(hoyo *Hoyolab) (*ActSign, error) {
 		return nil, fmt.Errorf("hoyo::%+v", err)
 	}
 
+	if IsDebug {
+		log.Printf("%s::%+v\n", e.Label, res)
+	}
 	return &res, nil
 }

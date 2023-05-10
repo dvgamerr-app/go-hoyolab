@@ -13,18 +13,11 @@ import (
 	"hoyolab/act"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/tmilewski/goenv"
 	"github.com/zellyn/kooky"
 	"github.com/zellyn/kooky/browser/chrome"
 )
 
 // at *day 1* your got [GSI]asdasd x1, [HSR]asdasd x1, [HI3]asdasd x1
-//
-
-const DEBUG string = "DEBUG"
-
-var IsDebug bool = false
-
 var configExt string = "yaml"
 var logExt string = "log"
 var configPath string = ""
@@ -32,9 +25,6 @@ var logPath string = ""
 var logfile *os.File
 
 func init() {
-	goenv.Load()
-	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
-
 	filename, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
@@ -54,7 +44,7 @@ func init() {
 		logPath = path.Join(dirname, logPath)
 	}
 	log.SetFlags(log.Lshortfile | log.Ltime)
-	if !IsDebug {
+	if !act.IsDebug {
 		log.SetFlags(log.Ldate | log.Ltime)
 		f, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
@@ -69,17 +59,6 @@ func main() {
 		defer logfile.Close()
 	}
 
-	// installSchedule := *flag.Bool("install", false, "# install to ")
-	// flag.Parse()
-
-	// if installSchedule {
-	// 	ex, err := os.Executable()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	exPath := filepath.Dir(ex)
-	// 	fmt.Println(exPath)
-	// }
 	hoyo := GenerateDefaultConfig()
 	if err := hoyo.ReadHoyoConfig(configPath); err != nil {
 		log.Fatal(err)
@@ -104,7 +83,7 @@ func main() {
 			}
 
 			if !hoyo.IsCookieToken(cookies) {
-				log.Println(" - Session is empty, please login hoyolab.com.")
+				log.Println("Session is empty, please login hoyolab.com.")
 				continue
 			}
 
@@ -112,30 +91,32 @@ func main() {
 				act := hoyo.Daily[i]
 				act.UserAgent = profile.UserAgent
 
-				// Get Info of Awards
-				resAward, err := act.DailyAward(hoyo)
+				resAward, err := act.GetMonthAward(hoyo)
 				if err != nil {
-					log.Printf(" - %s::DailyInfo: %v", act.Label, err)
+					log.Printf("%s::GetMonthAward :%v", act.Label, err)
 					continue
 				}
-				log.Printf(" - %s::DailyInfo:%+v", act.Label, resAward)
+
+				resInfo, err := act.GetCheckInInfo(hoyo)
+				if err != nil {
+					log.Printf("%s::GetCheckInInfo :%v", act.Label, err)
+					continue
+				}
+				log.Printf("%s::GetCheckInInfo : Total %d Claims", act.Label, resInfo.TotalSignDay+1)
+				if resInfo.IsSign {
+					log.Printf("%s::DailySignIn    : Claimed %s", act.Label, resInfo.Today)
+					continue
+				}
+
+				_, err = act.DailySignIn(hoyo)
+				if err != nil {
+					log.Printf("%s::DailySignIn    :%v", act.Label, err)
+					continue
+				}
+				award := resAward.Awards[resInfo.TotalSignDay+1]
+				log.Printf("%s::GetMonthAward  : Claimed %s x%d", act.Label, award.Name, award.Count)
 			}
 		}
-
-		// 	actInfo, ok := resInfo.Data.(ActInfo)
-		// 	if !ok {
-		// 		log.Fatalf("DailyInfo: %v", err)
-		// 	}
-		// 	if actInfo.IsSign {
-		// 		log.Printf("Hoyolab::DailyInfo:Claimed Today %s (Total %d Claims)", actInfo.Today, actInfo.TotalSignDay)
-		// 		continue
-		// 	}
-
-		// 	_, err = hoyo.DailySign()
-		// 	if err != nil {
-		// 		log.Fatalf("DailySign: %v", err)
-		// 	}
-		// 	// log.Printf("Hoyolab::DailySign:%+v", resInfo.Data)
 	}
 }
 
@@ -154,9 +135,10 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	//
 	// {"code":"ok"}
 	// {"retcode":0,"message":"OK","data":{"total_sign_day":11,"today":"2022-10-29","is_sign":false,"first_bind":false,"is_sub":true,"region":"os_asia","month_last_day":false}}
+	// {"retcode":0,"message":"OK","data":{"code":"ok","first_bind":false,"gt_result":{"risk_code":0,"gt":"","challenge":"","success":0,"is_risk":false}}}
 	var apiGenshinImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
-		Label:     "Genshin Impact",
+		Label:     "GSI",
 		ActID:     "e202102251931481",
 		API: act.DailyAPI{
 			Endpoint: "https://sg-hk4e-api.hoyolab.com",
@@ -179,7 +161,7 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	//
 	var apiHonkaiStarRail = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
-		Label:     "Honkai StarRail",
+		Label:     "HRS",
 		ActID:     "e202303301540311",
 		API: act.DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
@@ -196,7 +178,7 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	// https: //act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111
 	var apiHonkaiImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
-		Label:     "Honkai Impact 3",
+		Label:     "HI3",
 		ActID:     "e202110291205111",
 		API: act.DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
@@ -210,13 +192,15 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	}
 	return &act.Hoyolab{
 		Client: resty.New(),
-		Notify: ,
-		Delay:   150,
+		Notify: act.LineNotify{
+			Token:    "",
+			Minitify: true,
+		},
+		Delay: 150,
 		Browser: []act.BrowserProfile{
 			{
-				Browser: "chrome",
-				Name:    []string{"dvgamer"},
-				// Name:      []string{"Kananek"},
+				Browser:   "chrome",
+				Name:      []string{},
 				UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
 			},
 		},
