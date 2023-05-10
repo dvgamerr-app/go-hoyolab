@@ -36,11 +36,11 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 
 ## Todos
 - [x] Line Notify support after checkin.
-- [x] Cliams checkin daily with chrome browser only.
+- [x] Claims checkin daily with chrome browser only.
 - [x] Multiple chrome profiles for multiple game accounts.
-- [x] Genshin Impact cliams support.
-- [x] Honkai StarRail cliams support.
-- [x] Honkai Impact 3 cliams support.
+- [x] Genshin Impact claims support.
+- [x] Honkai StarRail claims support.
+- [x] Honkai Impact 3 claims support.
 - [ ] update new version from github automatic.
 - [ ] docker container support.
 - [ ] support session with all browser.
