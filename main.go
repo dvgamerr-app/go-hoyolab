@@ -13,6 +13,7 @@ import (
 	"hoyolab/act"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/tmilewski/goenv"
 	"github.com/zellyn/kooky"
 	"github.com/zellyn/kooky/browser/chrome"
 )
@@ -25,30 +26,28 @@ var logPath string = ""
 var logfile *os.File
 
 func init() {
+	goenv.Load()
+	IsDev := os.Getenv(act.DEBUG) != ""
+
 	execFilename, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
 	baseFilename := strings.ReplaceAll(filepath.Base(execFilename), filepath.Ext(execFilename), "")
+	dirname := filepath.Dir(execFilename)
 
-	configPath = fmt.Sprintf("%s.%s", baseFilename, configExt)
-	logPath = fmt.Sprintf("%s.%s", baseFilename, logExt)
-
-	dirname, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
+	if IsDev {
+		dirname, err = os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
-	if !act.IsDev {
-		dirname = filepath.Dir(execFilename)
-	}
+	configPath = path.Join(dirname, fmt.Sprintf("%s.%s", baseFilename, configExt))
+	logPath = path.Join(dirname, fmt.Sprintf("%s.%s", baseFilename, logExt))
 
-	if _, err := os.Stat(path.Join(dirname, configExt)); err == nil {
-		configPath = path.Join(dirname, configPath)
-		logPath = path.Join(dirname, logPath)
-	}
 	log.SetFlags(log.Lshortfile | log.Ltime)
-	if !act.IsDev {
+	if !IsDev {
 		log.SetFlags(log.Ldate | log.Ltime)
 		f, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {

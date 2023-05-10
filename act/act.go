@@ -55,9 +55,8 @@ var IsDebug bool = false
 var IsDev bool = false
 
 func init() {
-	if err := goenv.Load(); err == nil {
-		IsDev = true
-	}
+	goenv.Load()
+	IsDev = os.Getenv(DEBUG) != ""
 	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
 }
 
