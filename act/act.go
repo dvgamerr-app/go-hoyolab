@@ -36,6 +36,11 @@ type BrowserProfile struct {
 	UserAgent string   `yaml:"userAgent"`
 }
 
+type LineNotify struct {
+	Token string `yaml:"token"`
+	Mini  bool   `yaml:"mini"`
+}
+
 type Hoyolab struct {
 	Client  *resty.Client    `yaml:"client,omitempty"`
 	Notify  LineNotify       `yaml:"notify"`
@@ -85,6 +90,8 @@ func (hoyo *Hoyolab) ReadHoyoConfig(configPath string) error {
 		return nil
 	} else {
 		log.Println("Configuration readed.")
+		hoyo.Notify = readHoyo.Notify
+		hoyo.Delay = readHoyo.Delay
 		hoyo.Browser = readHoyo.Browser
 		hoyo.Daily = readHoyo.Daily
 		return nil
