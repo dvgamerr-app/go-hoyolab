@@ -10,6 +10,7 @@ on:
       - "**.mod"
       - "**.sum"
       - "!.github/workflows/build.yml"
+  pull_request:
 
 jobs:
   build:
@@ -42,8 +43,14 @@ jobs:
 
     - name: Build
       if: success()
-      run: |
-        go build -ldflags -H=windowsgui .
+      run: go build -ldflags -Hwindowsgui .
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hoyolab-${{ github.ref_name }}-${{ matrix.os }}
+        files: hoyolab.exe hoyolab README.md
+        retention-days: 3
 
     - name: Zip
       if: success()
@@ -53,7 +60,7 @@ jobs:
         dest: ./hoyolab-${{ github.ref_name }}-${{ matrix.os }}.zip
 
     - name: Create Release
-      if: success() && !contains(github.ref, 'main')
+      if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -64,7 +71,7 @@ jobs:
         draft: true
 
     - name: Upload Release
-      if: success() && !contains(github.ref, 'main')
+      if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
