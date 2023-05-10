@@ -12,9 +12,9 @@ Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it on
 3. run `hoyolab.exe`.
 4. If found Error please craete issues in [https://github.com/dvgamerr/go-hoyolab/issues](https://github.com/dvgamerr/go-hoyolab/issues)
 5. If Notify message after CheckIn use [LINE-Notify](https://notify-bot.line.me/my/)
-6. log in that and `Generate token` in below page after that copy token paste in `hoyolab.yaml` in `notify.token` same image:
+6. log in that and `Generate token` in below page after that copy token paste in `hoyolab.yaml` in `notify.token` at `XXXXXX` same image:
 
-
+![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/3e045903-58c8-4b74-9518-7d07282fe431)
 
 ### Windows
 ### Solution If Turn On computer 24*7
