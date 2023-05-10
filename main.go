@@ -9,12 +9,21 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
+
+	"hoyolab/act"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/tmilewski/goenv"
 	"github.com/zellyn/kooky"
 	"github.com/zellyn/kooky/browser/chrome"
 )
+
+// at *day 1* your got [GSI]asdasd x1, [HSR]asdasd x1, [HI3]asdasd x1
+//
+
+const DEBUG string = "DEBUG"
+
+var IsDebug bool = false
 
 var configExt string = "yaml"
 var logExt string = "log"
@@ -23,6 +32,9 @@ var logPath string = ""
 var logfile *os.File
 
 func init() {
+	goenv.Load()
+	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
+
 	filename, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +81,7 @@ func main() {
 	// 	fmt.Println(exPath)
 	// }
 	hoyo := GenerateDefaultConfig()
-	if err := hoyo.ReadHoyoConfig(); err != nil {
+	if err := hoyo.ReadHoyoConfig(configPath); err != nil {
 		log.Fatal(err)
 	}
 
@@ -101,17 +113,12 @@ func main() {
 				act.UserAgent = profile.UserAgent
 
 				// Get Info of Awards
-				resInfo, err := act.DailyInfo(hoyo)
+				resAward, err := act.DailyAward(hoyo)
 				if err != nil {
 					log.Printf(" - %s::DailyInfo: %v", act.Label, err)
 					continue
 				}
-				if resInfo.RetCode != 0 {
-					log.Printf(" - %s::DailyInfo: %v", act.Label, resInfo.Message)
-					continue
-				}
-				log.Printf(" - %s::DailyInfo:\n%+v\n", act.Label, resInfo)
-				time.Sleep(1 * time.Second)
+				log.Printf(" - %s::DailyInfo:%+v", act.Label, resAward)
 			}
 		}
 
@@ -142,16 +149,16 @@ func ContainsStrings(a []string, x string) bool {
 	return false
 }
 
-func GenerateDefaultConfig() *Hoyolab {
+func GenerateDefaultConfig() *act.Hoyolab {
 	// Genshin Impact
 	//
 	// {"code":"ok"}
 	// {"retcode":0,"message":"OK","data":{"total_sign_day":11,"today":"2022-10-29","is_sign":false,"first_bind":false,"is_sub":true,"region":"os_asia","month_last_day":false}}
-	var apiGenshinImpact = &DailyHoyolab{
+	var apiGenshinImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "Genshin Impact",
 		ActID:     "e202102251931481",
-		API: DailyAPI{
+		API: act.DailyAPI{
 			Endpoint: "https://sg-hk4e-api.hoyolab.com",
 			Domain:   "https://hoyolab.com",
 			Award:    "/event/sol/home",
@@ -170,11 +177,11 @@ func GenerateDefaultConfig() *Hoyolab {
 	// https://sg-public-api.hoyolab.com/event/luna/os/info
 	// {"retcode":0,"message":"OK","data":{"total_sign_day":7,"today":"2023-05-09","is_sign":false,"is_sub":false,"region":"","sign_cnt_missed":1,"short_sign_day":0}}
 	//
-	var apiHonkaiStarRail = &DailyHoyolab{
+	var apiHonkaiStarRail = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "Honkai StarRail",
 		ActID:     "e202303301540311",
-		API: DailyAPI{
+		API: act.DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
 			Domain:   "https://hoyolab.com",
 			Award:    "/event/luna/os/home",
@@ -187,11 +194,11 @@ func GenerateDefaultConfig() *Hoyolab {
 
 	// Honkai Impact 3
 	// https: //act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111
-	var apiHonkaiImpact = &DailyHoyolab{
+	var apiHonkaiImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "Honkai Impact 3",
 		ActID:     "e202110291205111",
-		API: DailyAPI{
+		API: act.DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
 			Domain:   "https://hoyolab.com",
 			Award:    "/event/mani/home",
@@ -201,9 +208,11 @@ func GenerateDefaultConfig() *Hoyolab {
 		Lang:    "en-us",
 		Referer: "https://act.hoyolab.com/bbs/event/signin-bh3/index.html",
 	}
-	return &Hoyolab{
+	return &act.Hoyolab{
 		Client: resty.New(),
-		Browser: []BrowserProfile{
+		Notify: ,
+		Delay:   150,
+		Browser: []act.BrowserProfile{
 			{
 				Browser: "chrome",
 				Name:    []string{"dvgamer"},
@@ -211,7 +220,7 @@ func GenerateDefaultConfig() *Hoyolab {
 				UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
 			},
 		},
-		Daily: []*DailyHoyolab{
+		Daily: []*act.DailyHoyolab{
 			apiGenshinImpact,
 			apiHonkaiStarRail,
 			apiHonkaiImpact,
