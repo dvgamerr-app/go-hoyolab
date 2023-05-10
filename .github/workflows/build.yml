@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: hoyolab-${{ github.ref_name }}-${{ matrix.os }}
-        path: ./bin
+        path: bin
         retention-days: 3
 
     # - name: Zip
