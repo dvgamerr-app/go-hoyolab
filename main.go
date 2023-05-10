@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"hoyolab/act"
 
@@ -87,8 +86,8 @@ func main() {
 				log.Println("Session is empty, please login hoyolab.com.")
 				continue
 			}
-			time.Sleep(1 * time.Second)
 
+			hoyo.Client = resty.New()
 			for i := 0; i < len(hoyo.Daily); i++ {
 				act := hoyo.Daily[i]
 				act.UserAgent = profile.UserAgent
@@ -193,7 +192,6 @@ func GenerateDefaultConfig() *act.Hoyolab {
 		Referer: "https://act.hoyolab.com/bbs/event/signin-bh3/index.html",
 	}
 	return &act.Hoyolab{
-		Client: resty.New(),
 		Notify: act.LineNotify{
 			Token:    "",
 			Minitify: true,

@@ -66,7 +66,6 @@ func (hoyo *Hoyolab) WriteHoyoConfig(configPath string) error {
 	if err != nil {
 		return fmt.Errorf("yaml Write::%s", err)
 	}
-	hoyo.Client = resty.New()
 	return nil
 }
 
@@ -105,12 +104,6 @@ func (hoyo *Hoyolab) IsCookieToken(cookies http.CookieJar) bool {
 }
 
 func (e *DailyHoyolab) SetCookie(rs []*http.Cookie) {
-	for _, jar := range rs {
-		if jar.Name == "ltoken" {
-			log.Printf("Profile ltoken: %s", jar.Value)
-			break
-		}
-	}
 	e.CookieJar = rs
 }
 
