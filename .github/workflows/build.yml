@@ -39,7 +39,7 @@ jobs:
 
     - name: Build
       if: success()
-      shell: bash
+      shell: sh
       run: go build -ldflags -H=windowsgui .
 
     - name: Upload Artifact
