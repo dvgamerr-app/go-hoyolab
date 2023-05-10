@@ -18,8 +18,6 @@ jobs:
       matrix:
         go-version: [1.19]
         os: [macos-latest, ubuntu-latest, windows-latest]
-        goos: [darwin, linux, windows]
-        goarch: ["386", amd64, arm64]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -41,12 +39,12 @@ jobs:
 
     - name: Build
       if: success()
-      run: CGO_ENABLED=0 GOOS=${{ matrix.goos }} go build .
+      run: CGO_ENABLED=0 go build .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: hoyolab-${{ github.ref_name }}-${{ matrix.goos }}-${{ matrix.goarch }}
+        name: hoyolab-${{ github.ref_name }}-${{ matrix.os }}
         files: hoyolab-* README.md
         retention-days: 3
 
