@@ -43,7 +43,7 @@ jobs:
 
     - name: Build
       if: success()
-      run: go build -ldflags -Hwindowsgui .
+      run: go build -ldflags -H=windowsgui .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
