@@ -5,17 +5,22 @@ on:
     branches: [ "main" ]
     tags:
       - "v*"
+    paths:
+      - "**.go"
+      - "**.mod"
+      - "**.sum"
+      - "!.github/workflows/build.yml"
   pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
     strategy:
       matrix:
         go-version: [1.19]
-        os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
-        name: [x64-windows-amd64]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env: 
+      CGO_ENABLED: "0"
     steps:
     - uses: actions/checkout@v3
 
@@ -34,39 +39,45 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-golang-
 
-    - name: Test
-      run: go test -v .
-
     - name: Build
       if: success()
       run: |
-        go build -ldflags -H=windowsgui .
+        mkdir -p ./bin
+        go build -o ./bin/hoyolab .
+        cp README.md ./bin/README.md
 
-    - name: Zip
-      if: success()
-      uses: vimtor/action-zip@v1
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
       with:
-        files: hoyolab.exe README.md
-        dest: ./hoyolab.zip
+        name: hoyolab-${{ matrix.os }}.tar
+        path: bin
+        retention-days: 3
 
-    - name: Create Release
-      if: success() && !contains(github.ref, 'main')
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Hoyolab ${{ github.ref_name }}
-        draft: true
+    # - name: Zip
+    #   if: success()
+    #   uses: vimtor/action-zip@v1
+    #   with:
+    #    files: hoyolab-* README.md
+    #     dest: ./hoyolab-${{ github.ref_name }}-${{ matrix.os }}.zip
 
-    - name: Upload Release
-      if: success() && !contains(github.ref, 'main')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
-        asset_path: ./hoyolab.zip
-        asset_name: hoyolab-${{ github.ref_name }}-${{ matrix.name }}.zip
-        asset_content_type: application/zip
+    # - name: Create Release
+    #   if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
+    #   id: create_release
+    #   uses: actions/create-release@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     tag_name: ${{ github.ref }}
+    #     release_name: Hoyolab ${{ github.ref_name }}
+    #     draft: true
+
+    # - name: Upload Release
+    #   if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, 
+    #     asset_path: ./hoyolab.zip
+    #     asset_name: hoyolab-${{ github.ref_name }}-${{ matrix.name }}.zip
+    #     asset_content_type: application/zip
