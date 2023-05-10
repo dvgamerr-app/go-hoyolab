@@ -25,18 +25,22 @@ var logPath string = ""
 var logfile *os.File
 
 func init() {
-	filename, err := os.Executable()
+	execFilename, err := os.Executable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	filename = strings.ReplaceAll(filepath.Base(filename), filepath.Ext(filename), "")
+	baseFilename := strings.ReplaceAll(filepath.Base(execFilename), filepath.Ext(execFilename), "")
 
-	configPath = fmt.Sprintf("%s.%s", filename, configExt)
-	logPath = fmt.Sprintf("%s.%s", filename, logExt)
+	configPath = fmt.Sprintf("%s.%s", baseFilename, configExt)
+	logPath = fmt.Sprintf("%s.%s", baseFilename, logExt)
 
 	dirname, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if !act.IsDev {
+		dirname = filepath.Dir(execFilename)
 	}
 
 	if _, err := os.Stat(path.Join(dirname, configExt)); err == nil {
@@ -66,6 +70,8 @@ func main() {
 
 	cookieStore := kooky.FindAllCookieStores()
 	log.Printf("Browser total %d sessions", len(cookieStore))
+
+	var notifyMessage []string
 	for _, store := range cookieStore {
 		if _, err := os.Stat(store.FilePath()); os.IsNotExist(err) {
 			continue
@@ -87,14 +93,27 @@ func main() {
 				continue
 			}
 
+			var resAcc *act.ActUser
 			hoyo.Client = resty.New()
+
+			var getDaySign int32 = -1
+			var getAward []string = []string{}
 			for i := 0; i < len(hoyo.Daily); i++ {
 				act := hoyo.Daily[i]
 				act.UserAgent = profile.UserAgent
 
+				if resAcc == nil {
+					resAcc, err = act.GetAccountUserInfo(hoyo)
+					if err != nil {
+						log.Printf("%s::GetUserInfo    : %v", act.Label, err)
+						continue
+					}
+					log.Printf("%s::GetUserInfo    : Hi, '%s", act.Label, resAcc.UserInfo.NickName)
+				}
+
 				resAward, err := act.GetMonthAward(hoyo)
 				if err != nil {
-					log.Printf("%s::GetMonthAward :%v", act.Label, err)
+					log.Printf("%s::GetMonthAward  : %v", act.Label, err)
 					continue
 				}
 
@@ -103,7 +122,8 @@ func main() {
 					log.Printf("%s::GetCheckInInfo :%v", act.Label, err)
 					continue
 				}
-				log.Printf("%s::GetCheckInInfo : Total %d Claims", act.Label, resInfo.TotalSignDay+1)
+
+				log.Printf("%s::GetCheckInInfo : Checked in for %d days", act.Label, resInfo.TotalSignDay)
 				if resInfo.IsSign {
 					log.Printf("%s::DailySignIn    : Claimed %s", act.Label, resInfo.Today)
 					continue
@@ -111,13 +131,40 @@ func main() {
 
 				_, err = act.DailySignIn(hoyo)
 				if err != nil {
-					log.Printf("%s::DailySignIn    :%v", act.Label, err)
+					log.Printf("%s::DailySignIn    : %v", act.Label, err)
 					continue
 				}
+
+				if getDaySign < 0 {
+					getDaySign = resInfo.TotalSignDay + 1
+				}
+
 				award := resAward.Awards[resInfo.TotalSignDay+1]
-				log.Printf("%s::GetMonthAward  : Claimed %s x%d", act.Label, award.Name, award.Count)
+				log.Printf("%s::GetMonthAward  : Today's received %s x%d", act.Label, award.Name, award.Count)
+
+				if hoyo.Notify.Mini {
+					getAward = append(getAward, fmt.Sprintf("*%s x%d* (%s)", award.Name, award.Count, act.Label))
+				} else {
+					getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d received %s x%d", act.Label, resInfo.TotalSignDay+1, award.Name, award.Count))
+				}
+
+			}
+			if len(getAward) > 0 {
+				if len(hoyo.Browser) > 1 {
+					notifyMessage = append(notifyMessage, "\n")
+				}
+
+				if hoyo.Notify.Mini {
+					notifyMessage = append(notifyMessage, fmt.Sprintf("%s, at day %d your got %s", resAcc.UserInfo.NickName, getDaySign, strings.Join(getAward, ", ")))
+				} else {
+					notifyMessage = append(notifyMessage, fmt.Sprintf("\nHi, %s Checked in for %d days.\n%s", resAcc.UserInfo.NickName, 1, strings.Join(getAward, "\n")))
+				}
 			}
 		}
+	}
+
+	if err := hoyo.NotifyMessage(strings.Join(notifyMessage, "\n")); err != nil {
+		log.Printf("NotifyMessage  : %v", err)
 	}
 }
 
@@ -193,8 +240,8 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	}
 	return &act.Hoyolab{
 		Notify: act.LineNotify{
-			Token:    "",
-			Minitify: true,
+			Token: "",
+			Mini:  true,
 		},
 		Delay: 150,
 		Browser: []act.BrowserProfile{

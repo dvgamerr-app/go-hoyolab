@@ -50,6 +50,15 @@ type ActInfo struct {
 
 type ActSign map[string]any
 
+type ActUser struct {
+	UserInfo ActUserInfo `json:"user_info"`
+}
+
+type ActUserInfo struct {
+	UID      string `json:"uid"`
+	NickName string `json:"nickname"`
+}
+
 // var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func (e *DailyHoyolab) generateHeaders() map[string]string {
@@ -107,15 +116,15 @@ func actResponse[T any](raw *resty.Response, actData *T) error {
 func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Award))
 	if err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("hoyo::%s", raw.Status())
+		return nil, fmt.Errorf("api::%s", raw.Status())
 	}
 
 	var res ActAward
 	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
@@ -129,19 +138,22 @@ func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 	return &res, nil
 }
 
-func (e *DailyHoyolab) GetUserFull(hoyo *Hoyolab) (*ActSign, error) {
-	time.Sleep(1 * time.Second)
-	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
+func (e *DailyHoyolab) GetAccountUserInfo(hoyo *Hoyolab) (*ActUser, error) {
+	// https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full?t=1683734340156
+	raw, err := hoyo.ActRequest(e).
+		SetQueryParams(map[string]string{"t": fmt.Sprint(time.Now().Unix() * 1000)}).
+		SetBody(map[string]string{"act_id": e.ActID}).
+		Get("https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full")
 	if err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("hoyo::%s", raw.Status())
+		return nil, fmt.Errorf("api::%s", raw.Status())
 	}
 
-	var res ActSign
+	var res ActUser
 	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
@@ -151,18 +163,17 @@ func (e *DailyHoyolab) GetUserFull(hoyo *Hoyolab) (*ActSign, error) {
 }
 
 func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
-	time.Sleep(550 * time.Millisecond)
 	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Info))
 	if err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("hoyo::%s", raw.Status())
+		return nil, fmt.Errorf("api::%s", raw.Status())
 	}
 
 	var res ActInfo
 	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
@@ -175,15 +186,15 @@ func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (*ActSign, error) {
 	time.Sleep(1 * time.Second)
 	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
 	if err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("hoyo::%s", raw.Status())
+		return nil, fmt.Errorf("api::%s", raw.Status())
 	}
 
 	var res ActSign
 	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("hoyo::%+v", err)
+		return nil, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
