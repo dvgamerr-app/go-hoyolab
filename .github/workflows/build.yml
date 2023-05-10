@@ -19,9 +19,8 @@ jobs:
         go-version: [1.19]
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    environment: 
-      name: CGO_ENABLED
-      url: 0
+    env: 
+      CGO_ENABLED: "0"
     steps:
     - uses: actions/checkout@v3
 
