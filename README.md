@@ -1,4 +1,3 @@
-# Hoyolab Daily CheckIn
 [![Go](https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml)
 [![CodeQL](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml)
 [![Dependency Review](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml)
