@@ -25,7 +25,7 @@ minima:
 
   # Generate social links in footer.
   #
-  social_links:}
+  social_links:
     - { platform: facebook,       user_url: "https://www.facebook.com/dvgamerr" }
     - { platform: github,         user_url: "https://github.com/dvgamerr/go-hoyolab" }
     - { platform: twitter,        user_url: "https://twitter.com/dvgamerr" }
