@@ -6,6 +6,30 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 
 ![example.png](./docs/example-logs.jpg)
 
+## Features
+- [x] Line Notify support after checkin.
+
+  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
+  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
+  
+- [x] Claims checkin daily with chrome browser only.
+- [x] Multiple chrome profiles for multiple game accounts.
+
+  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/1c75dc54-e787-4831-94a0-047f1aef7e1a)
+  
+- [x] Genshin Impact claims support.
+- [x] Honkai StarRail claims support.
+- [x] Honkai Impact 3 claims support.
+
+### Todo
+- [ ] update new version from github automatic.
+- [ ] docker container support.
+- [ ] support session with all browser.
+- [ ] command line `hoyolab` support all os.
+- [ ] install schedule task with windows-os automatic.
+
+---
+
 ## How to use
 1. Open chrome browser open [https://www.hoyolab.com/home](https://www.hoyolab.com/home)
 2. Login user genshin account for daily cliams.
@@ -32,17 +56,3 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 ## Prerequisites
 - Have login to mihoyo's website at chrome browser (A login for a year is enough)
 
----
-
-## Features
-- [x] Line Notify support after checkin.
-- [x] Claims checkin daily with chrome browser only.
-- [x] Multiple chrome profiles for multiple game accounts.
-- [x] Genshin Impact claims support.
-- [x] Honkai StarRail claims support.
-- [x] Honkai Impact 3 claims support.
-- [ ] update new version from github automatic.
-- [ ] docker container support.
-- [ ] support session with all browser.
-- [ ] command line `hoyolab` support all os.
-- [ ] install schedule task with windows-os automatic.
