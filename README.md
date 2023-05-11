@@ -3,7 +3,7 @@
 [![CodeQL](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml)
 [![Dependency Review](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml)
 
-Genshin Impact's Hoyolab Daily Check-in Bot is here!. You only need to run it once, then it will continue to run forever.
+Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, then it will continue to run forever.
 ![example.png](./docs/example-logs.jpg)
 
 ## How to use
