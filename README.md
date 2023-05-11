@@ -3,6 +3,7 @@
 [![Dependency Review](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml)
 
 Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, then it will continue to run forever.
+
 ![example.png](./docs/example-logs.jpg)
 
 ## How to use
@@ -33,7 +34,7 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 
 ---
 
-## Todos
+## Features
 - [x] Line Notify support after checkin.
 - [x] Claims checkin daily with chrome browser only.
 - [x] Multiple chrome profiles for multiple game accounts.
@@ -45,6 +46,3 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 - [ ] support session with all browser.
 - [ ] command line `hoyolab` support all os.
 - [ ] install schedule task with windows-os automatic.
-
-## License
-MIT © Touno.io 2023

@@ -1,8 +1,6 @@
-title: Hoyolab
-site:
-  author:
-    name: dvgamerr
-    email: kananek.dev@touno.io
+title: go-Hoyolab
+author: dvgamerr
+email: kananek.dev@touno.io
 
 description: >
   Hoyolab Automatic Daily Check-in Hoyoverse Game.
@@ -16,23 +14,10 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
-# Theme-specific settings
-minima:
-  # Minima date format.
-  # Refer to https://shopify.github.io/liquid/filters/date/ if you want to customize this.
-  #
-  # date_format: "%b %-d, %Y"
-
-  # Generate social links in footer.
-  social_links:
-    - platform: facebook
-      user_url: "https://www.facebook.com/dvgamerr"
-    - platform: github
-      user_url: "https://github.com/dvgamerr/go-hoyolab"
-    - platform: twitter
-      user_url: "https://twitter.com/dvgamerr"
-    - platform: youtube
-      user_url: "https://www.youtube.com/channel/UCbMNge3pQHkb3avJvUj4hLA"
+twitter_username: dvgamerr
+github_username:  dvgamerr
+facebook_username: dvgamerr
+youtube_username: UCbMNge3pQHkb3avJvUj4hLA
 
 # If you want to link only specific pages in your header, uncomment this and add the path to the pages in
 # order as they should show up.
