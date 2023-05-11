@@ -37,8 +37,14 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 4. If found Error please craete issues in [https://github.com/dvgamerr/go-hoyolab/issues](https://github.com/dvgamerr/go-hoyolab/issues)
 5. If Notify message after CheckIn use [LINE-Notify](https://notify-bot.line.me/my/)
 6. log in that and `Generate token` in below page after that copy token paste in `hoyolab.yaml` in `notify.token` at `XXXXXX` same image:
+ 
+ ![image](./docs/example-token.png)
+  
+7. If you don't play some game add `#` in first char in line scope, e.g. i don;t play honkai impact 
 
-![image](./docs/example-token.png)
+  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/7ab44d88-31cf-4919-ab5a-e7c4da5beedf)
+
+
 
 ### Windows
 ### Solution If Turn On computer 24*7
