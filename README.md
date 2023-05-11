@@ -56,3 +56,6 @@ Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, t
 ## Prerequisites
 - Have login to mihoyo's website at chrome browser (A login for a year is enough)
 
+## If you need help You can join Discord.
+
+[![Join Us?](https://discordapp.com/api/guilds/475720106471849996/widget.png?style=banner2)](https://touno.io/s/ixj7)
