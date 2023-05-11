@@ -1,7 +1,8 @@
 title: Hoyolab
-author:
-  name: dvgamerr
-  email: kananek.dev@touno.io
+site:
+  author:
+    name: dvgamerr
+    email: kananek.dev@touno.io
 
 description: >
   Hoyolab Automatic Daily Check-in Hoyoverse Game.
