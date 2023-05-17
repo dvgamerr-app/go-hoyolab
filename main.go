@@ -208,7 +208,7 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	//
 	var apiHonkaiStarRail = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
-		Label:     "HRS",
+		Label:     "HSR",
 		ActID:     "e202303301540311",
 		API: act.DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
