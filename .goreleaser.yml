@@ -1,0 +1,21 @@
+project_name: hoyolab
+builds:
+  - binary: hoyolab
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - freebsd
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      -
+        goos: windows
+        goarch: arm64
+release:
+  name_template: "{{.ProjectName}}-v{{.Version}}"
+ 
