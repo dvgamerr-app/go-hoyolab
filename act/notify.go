@@ -8,12 +8,12 @@ import (
 )
 
 func (hoyo *Hoyolab) NotifyMessage(message string) error {
-	if hoyo.Notify.Token == "" || message == "" {
+	if hoyo.Notify.LINENotify == "" || message == "" {
 		return nil
 	}
 
 	raw, err := resty.New().R().
-		SetHeaders(map[string]string{"Authorization": fmt.Sprintf("Bearer %s", hoyo.Notify.Token)}).
+		SetHeaders(map[string]string{"Authorization": fmt.Sprintf("Bearer %s", hoyo.Notify.LINENotify)}).
 		SetFormData(map[string]string{"message": message}).
 		Post("https://notify-api.line.me/api/notify")
 	if err != nil {

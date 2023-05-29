@@ -37,7 +37,7 @@ func init() {
 	dirname := filepath.Dir(execFilename)
 
 	if IsDev {
-		dirname, err = os.UserHomeDir()
+		dirname, err = os.Getwd()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -107,7 +107,7 @@ func main() {
 						log.Printf("%s::GetUserInfo    : %v", act.Label, err)
 						continue
 					}
-					log.Printf("%s::GetUserInfo    : Hi, '%s", act.Label, resAcc.UserInfo.NickName)
+					log.Printf("%s::GetUserInfo    : Hi, '%s'", act.Label, resAcc.UserInfo.NickName)
 				}
 
 				resAward, err := act.GetMonthAward(hoyo)
@@ -179,10 +179,6 @@ func ContainsStrings(a []string, x string) bool {
 
 func GenerateDefaultConfig() *act.Hoyolab {
 	// Genshin Impact
-	//
-	// {"code":"ok"}
-	// {"retcode":0,"message":"OK","data":{"total_sign_day":11,"today":"2022-10-29","is_sign":false,"first_bind":false,"is_sub":true,"region":"os_asia","month_last_day":false}}
-	// {"retcode":0,"message":"OK","data":{"code":"ok","first_bind":false,"gt_result":{"risk_code":0,"gt":"","challenge":"","success":0,"is_risk":false}}}
 	var apiGenshinImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "GSI",
@@ -199,13 +195,6 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	}
 
 	// Honkai StarRail
-	//
-	// https://sg-public-api.hoyolab.com/event/luna/os/home?lang=en-us&act_id=e202303301540311
-	// https://sg-public-api.hoyolab.com/event/luna/os/sign
-	// {"retcode":0,"message":"OK","data":{"code":"","risk_code":0,"gt":"","challenge":"","success":0,"is_risk":false}}
-	// https://sg-public-api.hoyolab.com/event/luna/os/info
-	// {"retcode":0,"message":"OK","data":{"total_sign_day":7,"today":"2023-05-09","is_sign":false,"is_sub":false,"region":"","sign_cnt_missed":1,"short_sign_day":0}}
-	//
 	var apiHonkaiStarRail = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "HSR",
@@ -222,7 +211,6 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	}
 
 	// Honkai Impact 3
-	// https: //act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111
 	var apiHonkaiImpact = &act.DailyHoyolab{
 		CookieJar: []*http.Cookie{},
 		Label:     "HI3",
@@ -239,9 +227,11 @@ func GenerateDefaultConfig() *act.Hoyolab {
 	}
 	return &act.Hoyolab{
 		Notify: act.LineNotify{
-			Token: "",
-			Mini:  true,
+			LINENotify: "",
+			Discord:    "",
+			Mini:       true,
 		},
+
 		Delay: 150,
 		Browser: []act.BrowserProfile{
 			{

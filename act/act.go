@@ -37,8 +37,11 @@ type BrowserProfile struct {
 }
 
 type LineNotify struct {
-	Token string `yaml:"token"`
-	Mini  bool   `yaml:"mini"`
+	Token string `yaml:"token,omitempty"`
+	// current
+	LINENotify string `yaml:"line-notify"`
+	Discord    string `yaml:"discord-webhook"`
+	Mini       bool   `yaml:"mini"`
 }
 
 type Hoyolab struct {
@@ -85,16 +88,20 @@ func (hoyo *Hoyolab) ReadHoyoConfig(configPath string) error {
 	err = yaml.Unmarshal(raw, &readHoyo)
 	if err != nil {
 		log.Println("Default configuration created.")
-		hoyo.WriteHoyoConfig(configPath)
-		return nil
+		return err
 	} else {
-		log.Println("Configuration readed.")
+		log.Println("Readed configuration .")
 		hoyo.Notify = readHoyo.Notify
+		if readHoyo.Notify.Token != "" {
+			hoyo.Notify.LINENotify = readHoyo.Notify.Token
+			hoyo.Notify.Token = ""
+		}
 		hoyo.Delay = readHoyo.Delay
 		hoyo.Browser = readHoyo.Browser
 		hoyo.Daily = readHoyo.Daily
-		return nil
 	}
+	hoyo.WriteHoyoConfig(configPath)
+	return nil
 }
 
 func (hoyo *Hoyolab) IsCookieToken(cookies http.CookieJar) bool {
