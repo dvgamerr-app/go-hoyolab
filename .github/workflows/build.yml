@@ -11,7 +11,6 @@ on:
       - "**.sum"
       - "!.github/workflows/build.yml"
   pull_request:
-
 jobs:
   build:
     # strategy:
@@ -20,6 +19,8 @@ jobs:
     #     os: [macos-latest, ubuntu-latest, windows-latest]
     # runs-on: ${{ matrix.os }}
     runs-on: ubuntu-latest
+    permissions:
+      deployments: write
     env: 
       CGO_ENABLED: "0"
     steps:
@@ -43,7 +44,7 @@ jobs:
         # key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
         # restore-keys: |
         #   ${{ runner.os }}-golang-
-    - name: Build
+    - name: Recheck Compiler
       if: contains(github.event_name, 'pull_request')
       run: |
         mkdir -p ./bin
@@ -57,7 +58,7 @@ jobs:
         version: latest
         args: release --clean
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # - name: Build
     #   if: success()
     #   run: |
