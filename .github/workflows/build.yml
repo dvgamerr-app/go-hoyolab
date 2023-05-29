@@ -19,8 +19,7 @@ jobs:
     #     os: [macos-latest, ubuntu-latest, windows-latest]
     # runs-on: ${{ matrix.os }}
     runs-on: ubuntu-latest
-    permissions:
-      deployments: write
+    permissions: write-all
     env: 
       CGO_ENABLED: "0"
     steps:
