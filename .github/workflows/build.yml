@@ -39,19 +39,28 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-golang-
 
-    - name: Build
-      if: success()
-      run: |
-        mkdir -p ./bin
-        go build -o ./bin/hoyolab .
-        cp README.md ./bin/README.md
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+    - name: Releaser
+      if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
+      uses: goreleaser/goreleaser-action@v4
       with:
-        name: hoyolab-${{ matrix.os }}.tar
-        path: bin
-        retention-days: 3
+        distribution: goreleaser
+        version: latest
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+    # - name: Build
+    #   if: success()
+    #   run: |
+    #     mkdir -p ./bin
+    #     go build -o ./bin/hoyolab .
+    #     cp README.md ./bin/README.md
+
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: hoyolab-${{ matrix.os }}.tar
+    #     path: bin
+    #     retention-days: 3
 
     # - name: Zip
     #   if: success()
