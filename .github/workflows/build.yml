@@ -14,11 +14,12 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        go-version: [1.19]
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    # strategy:
+    #   matrix:
+    #     go-version: [1.19]
+    #     os: [macos-latest, ubuntu-latest, windows-latest]
+    # runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     env: 
       CGO_ENABLED: "0"
     steps:
@@ -27,7 +28,8 @@ jobs:
     - name: Set up Golang
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: 1.19
+        # go-version: ${{ matrix.go-version }}
 
     - name: Caches
       uses: actions/cache@v3
@@ -35,23 +37,40 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+        key: ubuntu-golang-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-golang-
-
+          ubuntu-golang-
+        # key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+        # restore-keys: |
+        #   ${{ runner.os }}-golang-
     - name: Build
-      if: success()
+      if: contains(github.event_name, 'pull_request')
       run: |
         mkdir -p ./bin
         go build -o ./bin/hoyolab .
-        cp README.md ./bin/README.md
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+    - name: Releaser
+      if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
+      uses: goreleaser/goreleaser-action@v4
       with:
-        name: hoyolab-${{ matrix.os }}.tar
-        path: bin
-        retention-days: 3
+        distribution: goreleaser
+        version: latest
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+    # - name: Build
+    #   if: success()
+    #   run: |
+    #     mkdir -p ./bin
+    #     go build -o ./bin/hoyolab .
+    #     cp README.md ./bin/README.md
+
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: hoyolab-${{ matrix.os }}.tar
+    #     path: bin
+    #     retention-days: 3
 
     # - name: Zip
     #   if: success()

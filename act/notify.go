@@ -8,20 +8,36 @@ import (
 )
 
 func (hoyo *Hoyolab) NotifyMessage(message string) error {
-	if hoyo.Notify.Token == "" || message == "" {
+	if message == "" {
 		return nil
 	}
 
-	raw, err := resty.New().R().
-		SetHeaders(map[string]string{"Authorization": fmt.Sprintf("Bearer %s", hoyo.Notify.Token)}).
-		SetFormData(map[string]string{"message": message}).
-		Post("https://notify-api.line.me/api/notify")
-	if err != nil {
-		return fmt.Errorf("notify::%+v", err)
+	if hoyo.Notify.LINENotify != "" {
+		raw, err := resty.New().R().
+			SetHeaders(map[string]string{"Authorization": fmt.Sprintf("Bearer %s", hoyo.Notify.LINENotify)}).
+			SetFormData(map[string]string{"message": message}).
+			Post("https://notify-api.line.me/api/notify")
+		if err != nil {
+			return fmt.Errorf("line::%+v", err)
+		}
+		if raw.StatusCode() != 200 {
+			return fmt.Errorf("line::%s", raw.Status())
+		}
+		log.Println("LINENotify Message Sending...")
 	}
-	if raw.StatusCode() != 200 {
-		return fmt.Errorf("notify::%s", raw.Status())
+
+	if hoyo.Notify.Discord != "" {
+		raw, err := resty.New().R().
+			SetFormData(map[string]string{"content": message}).
+			Post(hoyo.Notify.Discord)
+		if err != nil {
+			return fmt.Errorf("Discord::%+v", err)
+		}
+		if raw.StatusCode() != 200 {
+			return fmt.Errorf("Discord::%s", raw.Status())
+		}
+		log.Println("Discord Message Sending...")
 	}
-	log.Println("NotifyMessage Sending...")
+
 	return nil
 }
