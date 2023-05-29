@@ -14,11 +14,12 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        go-version: [1.19]
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    # strategy:
+    #   matrix:
+    #     go-version: [1.19]
+    #     os: [macos-latest, ubuntu-latest, windows-latest]
+    # runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     env: 
       CGO_ENABLED: "0"
     steps:
@@ -27,7 +28,8 @@ jobs:
     - name: Set up Golang
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: 1.19
+        # go-version: ${{ matrix.go-version }}
 
     - name: Caches
       uses: actions/cache@v3
@@ -35,9 +37,17 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+        key: ubuntu-golang-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-golang-
+          ubuntu-golang-
+        # key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+        # restore-keys: |
+        #   ${{ runner.os }}-golang-
+    - name: Build
+      if: contains(github.event_name, 'pull_request')
+      run: |
+        mkdir -p ./bin
+        go build -o ./bin/hoyolab .
 
     - name: Releaser
       if: success() && !contains(github.ref, 'main') && !contains(github.event_name, 'pull_request')
