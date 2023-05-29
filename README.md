@@ -1,15 +1,33 @@
-[![Go](https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml)
-[![CodeQL](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml)
-[![Dependency Review](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml/badge.svg)](https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml)
+<div align="center">
+  <h1>Hoyolab a Daily Check-in for Hoyoverse Game</h1>
+  <p>
+    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/build.yml?label=Build&amp;style=flat-square" alt="GitHub Build Action Status">
+    </a>
+    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/codeql.yml?label=CodeQL&amp;style=flat-square" alt="GitHub Build Action Status">
+    </a>
+    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
+    </a>
+    <a href="LICENSE.md">
+      <img src="https://img.shields.io/github/license/dvgamerr/go-hoyolab?style=flat-square" alt="LICENSE">
+    </a>
+    <a href="https://github.com/dvgamerr/go-hoyolab/releases/latest">
+      <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square" alt="GitHub Release Date - Published_At">
+    </a>
+  </p>
+  <p>Genshin Impact, Honkai StarRail, Honkai Impact 3. You only need to run it once, then it will continue to run forever.</p>
 
-Hoyolab Automatic Daily Check-in Hoyoverse Game. You only need to run it once, then it will continue to run forever.
+  ![example.png](./docs/example-logs.jpg)
+</div>
 
-![example.png](./docs/example-logs.jpg)
 
 ## Features
 - [x] Line Notify support after checkin.
 
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
+
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
   
 - [x] Claims checkin daily with chrome browser only.
