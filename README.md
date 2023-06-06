@@ -22,6 +22,8 @@
 
 ![example.png](./docs/example-logs.jpg)
 
+![checkin.png](./docs/checkin.png)
+
 ## Features
 - [x] Line Notify support after checkin.
 

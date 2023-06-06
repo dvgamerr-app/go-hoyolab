@@ -128,9 +128,17 @@ func main() {
 					continue
 				}
 
-				_, err = act.DailySignIn(hoyo)
+				isRisk, err := act.DailySignIn(hoyo)
 				if err != nil {
 					log.Printf("%s::DailySignIn    : %v", act.Label, err)
+					continue
+				}
+				if isRisk {
+					if hoyo.Notify.Mini {
+						getAward = append(getAward, fmt.Sprintf("Challenge captcha (%s)", act.Label))
+					} else {
+						getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d challenge captcha", act.Label, resInfo.TotalSignDay+1))
+					}
 					continue
 				}
 

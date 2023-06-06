@@ -182,23 +182,31 @@ func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
 	return &res, nil
 }
 
-func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (*ActSign, error) {
+type ActSignRisk map[string]any
+
+func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (bool, error) {
 	time.Sleep(1 * time.Second)
 	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
 	if err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
+		return false, fmt.Errorf("api::%+v", err)
 	}
 	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("api::%s", raw.Status())
+		return false, fmt.Errorf("api::%s", raw.Status())
 	}
 
 	var res ActSign
 	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
+		return false, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
 		log.Printf("%s::%+v\n", e.Label, res)
 	}
-	return &res, nil
+
+	risk := res["gt_result"].(map[string]any)
+	if risk["risk_code"].(float64) > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
