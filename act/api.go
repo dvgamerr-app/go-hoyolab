@@ -203,10 +203,11 @@ func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (bool, error) {
 		log.Printf("%s::%+v\n", e.Label, res)
 	}
 
-	risk := res["gt_result"].(map[string]any)
-	if risk["risk_code"].(float64) > 0 {
-		return true, nil
+	if res["gt_result"] != nil {
+		risk := res["gt_result"].(map[string]any)
+		if risk["risk_code"].(float64) > 0 {
+			return true, nil
+		}
 	}
-
 	return false, nil
 }

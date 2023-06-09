@@ -133,15 +133,6 @@ func main() {
 					log.Printf("%s::DailySignIn    : %v", act.Label, err)
 					continue
 				}
-				if isRisk {
-					if hoyo.Notify.Mini {
-						getAward = append(getAward, fmt.Sprintf("Challenge captcha (%s)", act.Label))
-					} else {
-						getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d challenge captcha", act.Label, resInfo.TotalSignDay+1))
-					}
-					continue
-				}
-
 				if getDaySign < 0 {
 					getDaySign = resInfo.TotalSignDay + 1
 				}
@@ -150,11 +141,18 @@ func main() {
 				log.Printf("%s::GetMonthAward  : Today's received %s x%d", act.Label, award.Name, award.Count)
 
 				if hoyo.Notify.Mini {
-					getAward = append(getAward, fmt.Sprintf("*%s x%d* (%s)", award.Name, award.Count, act.Label))
+					if isRisk {
+						getAward = append(getAward, fmt.Sprintf("Challenge captcha (%s)", act.Label))
+					} else {
+						getAward = append(getAward, fmt.Sprintf("*%s x%d* (%s)", award.Name, award.Count, act.Label))
+					}
 				} else {
-					getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d received %s x%d", act.Label, resInfo.TotalSignDay+1, award.Name, award.Count))
+					if isRisk {
+						getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d challenge captcha", act.Label, resInfo.TotalSignDay+1))
+					} else {
+						getAward = append(getAward, fmt.Sprintf("*[%s]* at day %d received %s x%d", act.Label, resInfo.TotalSignDay+1, award.Name, award.Count))
+					}
 				}
-
 			}
 			if len(getAward) > 0 {
 				if len(hoyo.Browser) > 1 {
