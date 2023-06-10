@@ -25,8 +25,9 @@
 ![checkin.png](./docs/checkin.png)
 
 ## Features
-
-
+- [x] Claims checkin daily with chrome browser only.
+- [x] Multiple chrome profiles for multiple game accounts.
+- [X] command line `hoyolab` support all os.
 - [x] Line Notify support after checkin.
 
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
@@ -37,8 +38,6 @@
 
 ![checkin.png](./docs/example-notify.png)
 
-- [x] Claims checkin daily with chrome browser only.
-- [x] Multiple chrome profiles for multiple game accounts.
 
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/1c75dc54-e787-4831-94a0-047f1aef7e1a)
   
@@ -50,7 +49,6 @@
 - [ ] update new version from github automatic.
 - [ ] docker container support.
 - [ ] support session with all browser.
-- [ ] command line `hoyolab` support all os.
 - [ ] install schedule task with windows-os automatic.
 
 ---
