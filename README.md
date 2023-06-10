@@ -25,12 +25,18 @@
 ![checkin.png](./docs/checkin.png)
 
 ## Features
+
+
 - [x] Line Notify support after checkin.
 
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
 
   ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
-  
+
+- [x] Discord Notify support after checkin.
+
+![checkin.png](./docs/example-notify.png)
+
 - [x] Claims checkin daily with chrome browser only.
 - [x] Multiple chrome profiles for multiple game accounts.
 
