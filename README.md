@@ -20,7 +20,7 @@
   <p>Genshin Impact, Honkai StarRail, Honkai Impact 3. You only need to run it once, then it will continue to run forever.</p>
 </div>
 
-![example.png](./docs/example-logs.jpg)
+![example.png](./docs/example-logs.png)
 
 ![checkin.png](./docs/checkin.png)
 
