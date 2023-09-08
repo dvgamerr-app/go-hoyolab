@@ -122,7 +122,7 @@ func (e *DailyHoyolab) SetCookie(rs []*http.Cookie) {
 
 func (e *DailyHoyolab) IsCookieLogin() bool {
 	for _, jar := range e.CookieJar {
-		if jar.Name == "ltoken" {
+		if jar.Name == "ltoken" || jar.Name == "ltoken_v2" {
 			return true
 		}
 	}
