@@ -84,7 +84,8 @@ func main() {
 
 			cookies, err := chrome.CookieJar(store.FilePath())
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				continue
 			}
 
 			if !hoyo.IsCookieToken(cookies) {
