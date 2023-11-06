@@ -14,6 +14,7 @@
       <img src="https://goreportcard.com/badge/dvgamerr/go-hoyolab?style=flat-square">
     </a>
     <img src="https://img.shields.io/tokei/lines/github/dvgamerr/go-kooky?style=flat-square">
+    <br>
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square">
     <a href="LICENSE.md">
       <img src="https://img.shields.io/github/license/dvgamerr/go-hoyolab?style=flat-square" alt="LICENSE">
