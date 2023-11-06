@@ -10,22 +10,16 @@
     <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml">
       <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
     </a>
-    <a href="LICENSE.md">
-      <img src="https://img.shields.io/github/license/dvgamerr/go-hoyolab?style=flat-square" alt="LICENSE">
-    </a>
-    <a href="https://github.com/dvgamerr/go-hoyolab/releases/latest">
-      <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square">
-    </a>
-    <a href="https://pkg.go.dev/github.com/dvgamerr/go-hoyolab">
-      <img src="https://pkg.go.dev/badge/github.com/dvgamerr/go-hoyolab?style=flat-square">
-    </a>
     <a href="https://goreportcard.com/report/dvgamerr/go-hoyolab">
       <img src="https://goreportcard.com/badge/dvgamerr/go-hoyolab?style=flat-square">
     </a>
     <img src="https://img.shields.io/tokei/lines/github/dvgamerr/go-kooky?style=flat-square">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square">
-    <a href="https://lbesson.mit-license.org/">
-      <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT license">
+    <a href="LICENSE.md">
+      <img src="https://img.shields.io/github/license/dvgamerr/go-hoyolab?style=flat-square" alt="LICENSE">
+    </a>
+    <a href="https://github.com/dvgamerr/go-hoyolab/releases/latest">
+      <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square">
     </a>
   </p>
   <p>Genshin Impact, Honkai StarRail, Honkai Impact 3. You only need to run it once, then it will continue to run forever.</p>
