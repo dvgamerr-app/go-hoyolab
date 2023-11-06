@@ -23,14 +23,14 @@
       <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square">
     </a>
   </p>
+  <p><a href="./README.md">English</a> | <a href="./README_TH.md">ภาษาไทย</a></p>
   <p>Genshin Impact, Honkai StarRail, Honkai Impact 3. You only need to run it once, then it will continue to run forever.</p>
 </div>
-
-
 
 ![example.png](./docs/example-logs.png)
 
 ![checkin.png](./docs/checkin.png)
+
 
 ## Features
 - [x] update new version from github automatic.
