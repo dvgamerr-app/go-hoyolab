@@ -12,10 +12,10 @@ import (
 
 	"hoyolab/act"
 
+	"github.com/dvgamerr/go-kooky"
+	"github.com/dvgamerr/go-kooky/browser/chrome"
 	"github.com/go-resty/resty/v2"
 	"github.com/tmilewski/goenv"
-	"github.com/zellyn/kooky"
-	"github.com/zellyn/kooky/browser/chrome"
 )
 
 // at *day 1* your got [GSI]asdasd x1, [HSR]asdasd x1, [HI3]asdasd x1

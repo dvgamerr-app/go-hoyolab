@@ -3,8 +3,8 @@ module hoyolab
 go 1.21
 
 require (
-	github.com/go-resty/resty/v2 v2.7.0
-	github.com/zellyn/kooky v0.0.0-20230814063115-d4b42194bf0b
+	github.com/dvgamerr/go-kooky v0.0.0-20231105181842-7b8f8dbebe84
+	github.com/go-resty/resty/v2 v2.10.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -17,7 +17,7 @@ require (
 	github.com/keybase/go-keychain v0.0.0-20230523030712-b5615109f100 // indirect
 	github.com/tmilewski/goenv v1.0.0
 	github.com/zalando/go-keyring v0.2.3 // indirect
-	golang.org/x/crypto v0.13.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 )
