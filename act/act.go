@@ -1,7 +1,6 @@
 package act
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -58,22 +57,24 @@ var IsDebug bool = false
 var IsDev bool = false
 
 func init() {
-	goenv.Load()
+	err := goenv.Load()
+	if err != nil {
+		log.Println(err)
+	}
 	IsDev = os.Getenv(DEBUG) != ""
 	IsDebug = os.Getenv(DEBUG) != "" && os.Getenv(DEBUG) != "production"
 }
 
-func (hoyo *Hoyolab) WriteHoyoConfig(configPath string) error {
+func (hoyo *Hoyolab) WriteHoyoConfig(configPath string) {
 	hoyo.Client = nil
 	raw, err := yaml.Marshal(hoyo)
 	if err != nil {
-		return fmt.Errorf("yaml Marshal::%s", err)
+		log.Fatalf("yaml Marshal::%s", err)
 	}
 	err = os.WriteFile(configPath, raw, 0644)
 	if err != nil {
-		return fmt.Errorf("yaml Write::%s", err)
+		log.Fatalf("yaml Write::%s", err)
 	}
-	return nil
 }
 
 func (hoyo *Hoyolab) ReadHoyoConfig(configPath string) error {

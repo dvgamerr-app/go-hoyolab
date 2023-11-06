@@ -26,7 +26,10 @@ var logPath string = ""
 var logfile *os.File
 
 func init() {
-	goenv.Load()
+	err := goenv.Load()
+	if err != nil {
+		log.Println(err)
+	}
 	IsDev := os.Getenv(act.DEBUG) != ""
 
 	execFilename, err := os.Executable()
