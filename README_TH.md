@@ -33,6 +33,7 @@
 ![checkin.png](./docs/checkin.png)
 
 ## Features
+- [x] ปล่อย version ใหม่ผ่าน github actions.
 - [x] เริ่มต้นใช้งานได้แค่ chrome เท่านั้น.
 - [x] สามารถใช้กับ chrome หลายโปรไฟล์ เพื่อใช้กับหลาย login ID ได้.
 - [X] สามารถรัน `hoyolab` ได้ทุก os.
@@ -55,7 +56,6 @@
 
 ### ที่จะทำต่อ
 - [ ] รองรับ Zenless Zone Zero.
-- [ ] update new version from github automatic.
 - [ ] docker container support.
 - [ ] support session with all browser.
 - [ ] install schedule task with windows-os automatic.

@@ -33,6 +33,7 @@
 ![checkin.png](./docs/checkin.png)
 
 ## Features
+- [x] update new version from github automatic.
 - [x] Claims checkin daily with chrome browser only.
 - [x] Multiple chrome profiles for multiple game accounts.
 - [X] command line `hoyolab` support all os.
@@ -54,7 +55,7 @@
 - [x] Honkai Impact 3 claims support.
 
 ### Todo
-- [ ] update new version from github automatic.
+- [ ] Zenless Zone Zero claims support.
 - [ ] docker container support.
 - [ ] support session with all browser.
 - [ ] install schedule task with windows-os automatic.
