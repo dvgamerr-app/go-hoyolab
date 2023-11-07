@@ -7,6 +7,7 @@ description: >
   You only need to run it once, then it will continue
 
 # Build settings
+cronitor_token: f79386d38615cb7705017b89c2652da1
 
 # theme: dvgamerr/minima-lite
 baseurl: /go-hoyolab
