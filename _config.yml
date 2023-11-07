@@ -8,7 +8,7 @@ description: >
 
 # Build settings
 
-theme: minima-lite
+theme: dvgamerr/minima-lite
 
 plugins:
   - jekyll-feed
