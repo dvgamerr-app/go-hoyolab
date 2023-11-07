@@ -8,7 +8,9 @@ description: >
 
 # Build settings
 
-theme: dvgamerr/minima-lite
+# theme: dvgamerr/minima-lite
+baseurl: /go-hoyolab
+remote_theme: dvgamerr/minima-lite
 
 plugins:
   - jekyll-feed
