@@ -1,6 +1,10 @@
 title: go-Hoyolab
-author: dvgamerr
-email: kananek.dev@touno.io
+repo: go-hoyolab
+version: v1.0
+author:
+  username: dvgamerr
+  name: Kananek T.
+  website: https://mr.touno.io/
 
 description: >
   Hoyolab Automatic Daily Check-in Hoyoverse Game.
@@ -17,10 +21,14 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
-twitter_username: dvgamerr
-github_username:  dvgamerr
-facebook_username: dvgamerr
-youtube_username: channel/UCbMNge3pQHkb3avJvUj4hLA
+minima:
+  date_format: "%-d %b %Y"
+  social_links:
+    - { platform: devto,          user_url: "https://dev.to/dvgamerr" }
+    - { platform: facebook,       user_url: "https://www.facebook.com/dvgamerr" }
+    - { platform: x,        user_url: "https://x.com/dvgamerr" }
+    - { platform: youtube,        user_url: "https://www.youtube.com/channel/UCbMNge3pQHkb3avJvUj4hLA" }
+youtube_username: 
 
 # If you want to link only specific pages in your header, uncomment this and add the path to the pages in
 # order as they should show up.
