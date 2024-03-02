@@ -4,16 +4,10 @@
     <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml">
       <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/build.yml?label=Build&amp;style=flat-square" alt="GitHub Build Action Status">
     </a>
-    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/codeql.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/codeql.yml?label=CodeQL&amp;style=flat-square" alt="GitHub Build Action Status">
-    </a>
-    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/review.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
-    </a>
+    <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
     <a href="https://goreportcard.com/report/dvgamerr/go-hoyolab">
       <img src="https://goreportcard.com/badge/dvgamerr/go-hoyolab?style=flat-square">
     </a>
-    <img src="https://img.shields.io/tokei/lines/github/dvgamerr/go-kooky?style=flat-square">
     <br>
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square">
     <a href="LICENSE.md">
@@ -23,6 +17,7 @@
       <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square">
     </a>
   </p>
+  <p><a href="./README.md">English</a> | <a href="./README_TH.md">ภาษาไทย</a></p>
   <p>Genshin Impact, Honkai StarRail, Honkai Impact 3. You only need to run it once, then it will continue to run forever.</p>
 </div>
 
