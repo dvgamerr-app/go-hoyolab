@@ -1,21 +1,20 @@
 title: go-Hoyolab
-repo: dvgamerr/go-hoyolab
+repo: dvgamerr-app/go-hoyolab
 version: v1.0
 author:
   username: dvgamerr
   name: Kananek T.
-  website: https://mr.touno.io/
+  website: https://dvgamerr.app/
 
 description: >
   Hoyolab Automatic Daily Check-in Hoyoverse Game.
   You only need to run it once, then it will continue
 
 # Build settings
-cronitor_token: f79386d38615cb7705017b89c2652da1
+cronitor_token: a08df15d735c0c7518246129767fd319
 
-# theme: dvgamerr/minima-lite
 baseurl: /go-hoyolab
-remote_theme: dvgamerr/minima-lite
+remote_theme: dvgamerr-app/minima-lite
 
 plugins:
   - jekyll-feed
