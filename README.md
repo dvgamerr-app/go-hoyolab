@@ -1,20 +1,20 @@
 <div align="center">
   <h1>Hoyolab a Daily Check-in for Hoyoverse Game</h1>
   <p>
-    <a href="https://github.com/dvgamerr/go-hoyolab/actions/workflows/build.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/build.yml?label=Build&amp;style=flat-square" alt="GitHub Build Action Status">
+    <a href="https://github.com/dvgamerr-app/go-hoyolab/actions/workflows/build.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr-app/go-hoyolab/build.yml?label=Build&amp;style=flat-square" alt="GitHub Build Action Status">
     </a>
-    <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
-    <a href="https://goreportcard.com/report/dvgamerr/go-hoyolab">
-      <img src="https://goreportcard.com/badge/dvgamerr/go-hoyolab?style=flat-square">
+    <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr-app/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
+    <a href="https://goreportcard.com/report/dvgamerr-app/go-hoyolab">
+      <img src="https://goreportcard.com/badge/dvgamerr-app/go-hoyolab?style=flat-square">
     </a>
     <br>
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square">
     <a href="LICENSE.md">
-      <img src="https://img.shields.io/github/license/dvgamerr/go-hoyolab?style=flat-square" alt="LICENSE">
+      <img src="https://img.shields.io/github/license/dvgamerr-app/go-hoyolab?style=flat-square" alt="LICENSE">
     </a>
-    <a href="https://github.com/dvgamerr/go-hoyolab/releases/latest">
-      <img src="https://img.shields.io/github/release-date/dvgamerr/go-hoyolab?style=flat-square">
+    <a href="https://github.com/dvgamerr-app/go-hoyolab/releases/latest">
+      <img src="https://img.shields.io/github/release-date/dvgamerr-app/go-hoyolab?style=flat-square">
     </a>
   </p>
   <p><a href="./README.md">English</a> | <a href="./README_TH.md">ภาษาไทย</a></p>
@@ -33,16 +33,16 @@
 - [X] command line `hoyolab` support all os.
 - [x] Line Notify support after checkin.
 
-  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
+  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
 
-  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
+  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
 
 - [x] Discord Notify support after checkin.
 
 ![checkin.png](./docs/example-notify.png)
 
 
-  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/1c75dc54-e787-4831-94a0-047f1aef7e1a)
+  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/1c75dc54-e787-4831-94a0-047f1aef7e1a)
   
 - [x] Genshin Impact claims support.
 - [x] Honkai StarRail claims support.
@@ -60,7 +60,7 @@
 1. Open chrome browser open [https://www.hoyolab.com/home](https://www.hoyolab.com/home)
 2. Login user genshin account for daily cliams.
 3. run `hoyolab.exe`.
-4. If found Error please craete issues in [https://github.com/dvgamerr/go-hoyolab/issues](https://github.com/dvgamerr/go-hoyolab/issues)
+4. If found Error please craete issues in [https://github.com/dvgamerr-app/go-hoyolab/issues](https://github.com/dvgamerr-app/go-hoyolab/issues)
 5. If Notify message after CheckIn use [LINE-Notify](https://notify-bot.line.me/my/)
 6. log in that and `Generate token` in below page after that copy token paste in `hoyolab.yaml` in `notify.token` at `XXXXXX` same image:
  
@@ -68,7 +68,7 @@
   
 7. If you don't play some game add `#` in first char in line scope, e.g. i don;t play honkai impact 
 
-  ![image](https://github.com/dvgamerr/go-hoyolab/assets/10203425/7ab44d88-31cf-4919-ab5a-e7c4da5beedf)
+  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/7ab44d88-31cf-4919-ab5a-e7c4da5beedf)
 
 
 
