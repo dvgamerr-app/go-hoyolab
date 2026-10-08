@@ -11,12 +11,6 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type ActAPI struct {
-	RetCode int32  `json:"retcode"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-}
-
 type ActAward struct {
 	Month      int16          `json:"month"`
 	Awards     []ActAwardItem `json:"awards"`
@@ -59,26 +53,41 @@ type ActUserInfo struct {
 	NickName string `json:"nickname"`
 }
 
-// var json jsoniter.API = jsoniter.ConfigCompatibleWithStandardLibrary
+var dataUserAgent = map[string]string{
+	"chrome":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+	"edge":    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
+	"firefox": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+}
 
 func (e *DailyHoyolab) generateHeaders() map[string]string {
 	uri, _ := url.Parse(e.Referer)
-	return map[string]string{
-		"Accept":             "application/json, text/plain, */*",
-		"Accept-Encoding":    "gzip, deflate, br",
-		"Accept-Language":    "en-US,en;q=0.9,th;q=0.8",
-		"Connection":         "keep-alive",
-		"Content-Type":       "application/json;charset=UTF-8",
-		"Referer":            fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-		"Origin":             fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-		"User-Agent":         e.UserAgent,
-		"Sec-Ch-Ua":          `"Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"`,
-		"Sec-Ch-Ua-Mobile":   `?0`,
-		"Sec-Ch-Ua-Platform": `"Windows"`,
-		"Sec-Fetch-Mode":     `cors`,
-		"Sec-Fetch-Site":     `same-site`,
-		"Sec-Fetch-Dest":     `empty`,
+
+	userAgent := dataUserAgent[e.Name]
+	if userAgent == "" {
+		// Name may already hold a full user-agent string from the profile config.
+		userAgent = e.Name
 	}
+	if userAgent == "" {
+		userAgent = dataUserAgent["chrome"]
+	}
+
+	headers := map[string]string{
+		"Accept":          "application/json, text/plain, */*",
+		"Accept-Encoding": "gzip, deflate, br",
+		"Accept-Language": "en-US,en;q=0.9,th;q=0.8",
+		"Connection":      "keep-alive",
+		"Content-Type":    "application/json;charset=UTF-8",
+		"Referer":         fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"Origin":          fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
+		"User-Agent":      userAgent,
+		"Sec-Fetch-Mode":  `cors`,
+		"Sec-Fetch-Site":  `same-site`,
+		"Sec-Fetch-Dest":  `empty`,
+	}
+	if e.SignGame != "" {
+		headers["x-rpc-signgame"] = e.SignGame
+	}
+	return headers
 }
 
 func (hoyo *Hoyolab) ActRequest(act *DailyHoyolab) *resty.Request {
@@ -92,7 +101,11 @@ func (hoyo *Hoyolab) ActRequest(act *DailyHoyolab) *resty.Request {
 }
 
 func actResponse[T any](raw *resty.Response, actData *T) error {
-	var res ActAPI
+	var res struct {
+		RetCode int32           `json:"retcode"`
+		Message string          `json:"message"`
+		Data    json.RawMessage `json:"data"`
+	}
 	if err := json.Unmarshal(raw.Body(), &res); err != nil {
 		return fmt.Errorf("res::%s", "Unmarshal: ActAPI")
 	}
@@ -101,20 +114,16 @@ func actResponse[T any](raw *resty.Response, actData *T) error {
 		return fmt.Errorf(" %s", res.Message)
 	}
 
-	data, err := json.Marshal(res.Data)
-	if err != nil {
-		return fmt.Errorf("res::Marshal: %v", reflect.TypeOf(actData))
-	}
-
-	if err := json.Unmarshal(data, actData); err != nil {
+	if err := json.Unmarshal(res.Data, actData); err != nil {
 		return fmt.Errorf("res::Unmarshal: %v", reflect.TypeOf(actData))
 	}
 
 	return nil
 }
 
-func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
-	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Award))
+// execute sends the request and decodes the HoYoLAB envelope into T.
+func execute[T any](e *DailyHoyolab, req *resty.Request, method, endpoint string) (*T, error) {
+	raw, err := req.Execute(method, endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("api::%+v", err)
 	}
@@ -122,92 +131,50 @@ func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 		return nil, fmt.Errorf("api::%s", raw.Status())
 	}
 
-	var res ActAward
+	var res T
 	if err := actResponse(raw, &res); err != nil {
 		return nil, fmt.Errorf("api::%+v", err)
 	}
 
 	if IsDebug {
-		log.Printf("%s::%+v\n", e.Label, map[string]any{
-			"Month":      res.Month,
-			"Biz":        res.Biz,
-			"Resign":     res.Resign,
-			"ExtraAward": res.ExtraAward,
-		})
+		log.Printf("%s::%+v\n", e.Label, res)
 	}
 	return &res, nil
+}
+
+func (e *DailyHoyolab) url(path string) string {
+	return e.API.Endpoint + path
+}
+
+func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
+	return execute[ActAward](e, hoyo.ActRequest(e), resty.MethodGet, e.url(e.API.Award))
 }
 
 func (e *DailyHoyolab) GetAccountUserInfo(hoyo *Hoyolab) (*ActUser, error) {
 	// https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full?t=1683734340156
-	raw, err := hoyo.ActRequest(e).
-		SetQueryParams(map[string]string{"t": fmt.Sprint(time.Now().Unix() * 1000)}).
-		SetBody(map[string]string{"act_id": e.ActID}).
-		Get("https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full")
-	if err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
-	}
-	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("api::%s", raw.Status())
-	}
-
-	var res ActUser
-	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
-	}
-
-	if IsDebug {
-		log.Printf("%s::%+v\n", e.Label, res)
-	}
-	return &res, nil
+	req := hoyo.ActRequest(e).
+		SetQueryParams(map[string]string{"t": fmt.Sprint(time.Now().UnixMilli())}).
+		SetBody(map[string]string{"act_id": e.ActID})
+	return execute[ActUser](e, req, resty.MethodGet, "https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full")
 }
 
 func (e *DailyHoyolab) GetCheckInInfo(hoyo *Hoyolab) (*ActInfo, error) {
-	raw, err := hoyo.ActRequest(e).Get(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Info))
-	if err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
-	}
-	if raw.StatusCode() != 200 {
-		return nil, fmt.Errorf("api::%s", raw.Status())
-	}
-
-	var res ActInfo
-	if err := actResponse(raw, &res); err != nil {
-		return nil, fmt.Errorf("api::%+v", err)
-	}
-
-	if IsDebug {
-		log.Printf("%s::%+v\n", e.Label, res)
-	}
-	return &res, nil
+	return execute[ActInfo](e, hoyo.ActRequest(e), resty.MethodGet, e.url(e.API.Info))
 }
 
-type ActSignRisk map[string]any
-
+// DailySignIn signs in and reports whether a captcha challenge was triggered.
 func (e *DailyHoyolab) DailySignIn(hoyo *Hoyolab) (bool, error) {
 	time.Sleep(1 * time.Second)
-	raw, err := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID}).Post(fmt.Sprintf("%s%s", e.API.Endpoint, e.API.Sign))
+	req := hoyo.ActRequest(e).SetBody(map[string]string{"act_id": e.ActID})
+	res, err := execute[ActSign](e, req, resty.MethodPost, e.url(e.API.Sign))
 	if err != nil {
-		return false, fmt.Errorf("api::%+v", err)
-	}
-	if raw.StatusCode() != 200 {
-		return false, fmt.Errorf("api::%s", raw.Status())
+		return false, err
 	}
 
-	var res ActSign
-	if err := actResponse(raw, &res); err != nil {
-		return false, fmt.Errorf("api::%+v", err)
+	risk, ok := (*res)["gt_result"].(map[string]any)
+	if !ok {
+		return false, nil
 	}
-
-	if IsDebug {
-		log.Printf("%s::%+v\n", e.Label, res)
-	}
-
-	if res["gt_result"] != nil {
-		risk := res["gt_result"].(map[string]any)
-		if risk["risk_code"].(float64) > 0 {
-			return true, nil
-		}
-	}
-	return false, nil
+	code, _ := risk["risk_code"].(float64)
+	return code > 0, nil
 }
