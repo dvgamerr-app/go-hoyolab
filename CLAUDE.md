@@ -52,3 +52,9 @@
 - Default config profile is now `firefox` with a Firefox user agent. Existing `profile[].browser: chrome|edge|brave` entries log a warning and match no store. A profile entry with a `browser` now only matches stores of that browser even when `name` is empty (previously empty `name` matched every browser).
 - go-kooky was rewritten as module `github.com/dvgamerr-app/go-kooky/v2` (new API, incompatible with v1). `go.mod` now requires `.../go-kooky/v2 v2.0.0` and `main.go` imports `.../v2/browser`, and v2.0.0 is published (tag `v2.0.0` on branch `v2` of dvgamerr-app/go-kooky, commit 772bf33; pushed over ssh because the https/gh token lacked the `workflow` scope). `go.mod` was tidied and `go.sum` filled with no `go.work`. `github.com/go-ini/ini` is pinned to `v1.67.0` (indirect) because v1.67.3 declares its module path as `gopkg.in/ini.v1` and breaks the graph; do not bump it. `go.sum` for go-kooky/v2 was fetched with `GOPROXY=direct GONOSUMDB=github.com/dvgamerr-app/go-kooky` because proxy.golang.org / sum.golang.org had negatively cached the tag; re-verify with a normal `go mod verify` once those caches expire.
 - Verified with `go.work`: `go vet ./...`, `go test -count=1 ./...`, `go build -buildvcs=false ./...` pass; live `--list` on this machine (Chrome/Edge/Brave only, no Firefox) exits with the new guidance message and no panic. Reading a real Firefox profile is unverified — none is installed here.
+
+## Docs and site — 2026-10-10
+
+- `README.md` / `README_TH.md` rewritten for the Firefox-only flow; keep the two in sync.
+- GitHub Pages now serves the static page in `site/` (no Jekyll; `_config.yml` removed). `.github/workflows/gh-pages.yml` uploads `./site` and only runs when `site/**` or the workflow changes. Images in `site/img/` are copies of `docs/*.png`.
+- The repository Pages source must be set to "GitHub Actions" (Settings → Pages) for the deploy job to publish.
