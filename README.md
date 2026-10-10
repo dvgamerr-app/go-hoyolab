@@ -1,98 +1,98 @@
 <div align="center">
-  <h1>Hoyolab a Daily Check-in for Hoyoverse Game</h1>
-  <p>
-    <a href="https://github.com/dvgamerr-app/go-hoyolab/actions/workflows/build.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr-app/go-hoyolab/build.yml?label=Build&amp;style=flat-square" alt="GitHub Build Action Status">
-    </a>
-    <img src="https://img.shields.io/github/actions/workflow/status/dvgamerr-app/go-hoyolab/review.yml?label=Dependency&amp;style=flat-square" alt="GitHub Build Action Status">
-    <a href="https://goreportcard.com/report/dvgamerr-app/go-hoyolab">
-      <img src="https://goreportcard.com/badge/dvgamerr-app/go-hoyolab?style=flat-square">
-    </a>
-    <br>
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square">
-    <a href="LICENSE">
-      <img src="https://img.shields.io/github/license/dvgamerr-app/go-hoyolab?style=flat-square" alt="LICENSE">
-    </a>
-    <a href="https://github.com/dvgamerr-app/go-hoyolab/releases/latest">
-      <img src="https://img.shields.io/github/release-date/dvgamerr-app/go-hoyolab?style=flat-square">
-    </a>
-  </p>
-  <p><a href="./README.md">English</a> | <a href="./README_TH.md">ภาษาไทย</a></p>
-  <p>Genshin Impact, Honkai StarRail, Honkai Impact 3, Zenless Zone Zero. You only need to run it once, then it will continue to run forever.</p>
+
+# 🎮 go-hoyolab
+
+**Daily HoYoLAB check-in for every HoYoverse game — set it up once, forget it forever.**
+
+[![Build](https://img.shields.io/github/actions/workflow/status/dvgamerr-app/go-hoyolab/build.yml?label=Build&style=flat-square)](https://github.com/dvgamerr-app/go-hoyolab/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/dvgamerr-app/go-hoyolab?style=flat-square)](https://goreportcard.com/report/dvgamerr-app/go-hoyolab)
+[![Release](https://img.shields.io/github/v/release/dvgamerr-app/go-hoyolab?style=flat-square)](https://github.com/dvgamerr-app/go-hoyolab/releases/latest)
+[![License](https://img.shields.io/github/license/dvgamerr-app/go-hoyolab?style=flat-square)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/dvgamerr-app/go-hoyolab/pulls)
+
+[English](./README.md) · [ภาษาไทย](./README_TH.md) · [Website](https://dvgamerr-app.github.io/go-hoyolab/) · [Discord](https://discord.gg/QDccF497Mw)
+
+![check-in log](./docs/example-logs.png)
+
 </div>
 
-![example.png](./docs/example-logs.png)
+## ✨ Why
 
-![checkin.png](./docs/checkin.png)
+- **Zero setup for login** — it reuses the HoYoLAB session you already have in Firefox. No passwords, no tokens to copy.
+- **One small binary** — a single `hoyolab` executable for Windows, macOS, Linux and FreeBSD. No runtime, no Docker.
+- **Every game in one run** — all your enabled games are checked in together, for as many accounts as you have profiles.
+- **Tells you what you got** — a Discord (or LINE) message lists today's reward for each game.
+- **Updates itself** — picks up new releases from GitHub automatically.
 
+## 🕹️ Supported games
 
-## Features
-- [x] update new version from github automatic.
-- [x] Claims checkin daily using the login saved in Firefox (or a Firefox fork: LibreWolf, Waterfox, Zen, Floorp).
-- [x] Multiple browser profiles for multiple game accounts.
-- Chrome, Edge and Brave are **no longer supported**: their cookies use App-Bound Encryption (`v20`) and cannot be read.
-- [X] command line `hoyolab` support all os.
-- [x] Line Notify support after checkin.
+| Game | Key in `hoyolab.yaml` | Default |
+| --- | --- | :---: |
+| Genshin Impact | `GSI` | ✅ |
+| Honkai: Star Rail | `HSR` | ✅ |
+| Zenless Zone Zero | `ZZZ` | ✅ |
+| Honkai Impact 3rd | `HI3` | — |
 
-  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/0cbdb857-f866-4813-8420-03c2ce73688e)
+## 🚀 Quick start
 
-  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/133f8fcd-d301-471f-92a7-6e88874ff851)
+1. Sign in to <https://www.hoyolab.com/home> in **Firefox** (or LibreWolf, Waterfox, Zen, Floorp).
+2. Download the archive for your OS from the [latest release](https://github.com/dvgamerr-app/go-hoyolab/releases/latest) and unpack it.
+3. Run it:
 
-- [x] Discord Notify support after checkin.
+   ```shell
+   ./hoyolab          # Windows: hoyolab.exe
+   ```
 
-![checkin.png](./docs/example-notify.png)
+That is all. On the first run it writes a `hoyolab.yaml` next to the binary; edit it to add notifications or switch games on and off.
 
+> [!IMPORTANT]
+> **Chrome, Edge and Brave are no longer supported.** They encrypt cookies with App-Bound Encryption (`v20`), which cannot be read from outside the browser. If your old `hoyolab.yaml` has `profile[].browser: chrome` (or `edge` / `brave`), change it to `firefox` — those entries are ignored with a warning.
 
-  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/1c75dc54-e787-4831-94a0-047f1aef7e1a)
-  
-- [x] Genshin Impact claims support.
-- [x] Zenless Zone Zero claims support (`games: [GSI, HSR, ZZZ, HI3]` in hoyolab.yaml).
-- [x] Honkai StarRail claims support.
-- [x] Honkai Impact 3 claims support.
+To see which browser profiles were found:
 
-### Todo
-- [ ] Zenless Zone Zero claims support.
-- [ ] docker container support.
-- [ ] support session with all browser.
-- [ ] install schedule task with windows-os automatic.
+```shell
+./hoyolab --list
+```
 
----
+## ⚙️ Configuration
 
-## How to use
-1. Open Firefox (not Chrome/Edge/Brave) and go to [https://www.hoyolab.com/home](https://www.hoyolab.com/home)
-2. Login user genshin account for daily cliams.
-3. run `hoyolab.exe`.
-4. If found Error please craete issues in [https://github.com/dvgamerr-app/go-hoyolab/issues](https://github.com/dvgamerr-app/go-hoyolab/issues)
-5. If Notify message after CheckIn use [LINE-Notify](https://notify-bot.line.me/my/)
-6. log in that and `Generate token` in below page after that copy token paste in `hoyolab.yaml` in `notify.token` at `XXXXXX` same image:
- 
- ![image](./docs/example-token.png)
-  
-7. If you don't play some game add `#` in first char in line scope, e.g. i don;t play honkai impact 
+```yaml
+notify:
+  discord-webhook: "https://discord.com/api/webhooks/..."   # optional
+  line-notify: ""                                           # optional
+  mini: true
+profile:
+  - browser: firefox
+    name: []            # empty = every Firefox profile; or list profile names
+games:                  # remove or comment out the games you do not play
+  - GSI
+  - HSR
+  - ZZZ
+```
 
-  ![image](https://github.com/dvgamerr-app/go-hoyolab/assets/10203425/7ab44d88-31cf-4919-ab5a-e7c4da5beedf)
+Existing configs that still use the old per-game `config:` blocks keep working and are migrated automatically the next time the file is written.
 
+## 🔔 Notifications
 
+| Provider | How |
+| --- | --- |
+| **Discord** | Create a webhook in *Channel settings → Integrations* and paste the URL into `notify.discord-webhook`. |
+| **LINE Notify** | Generate a token at [notify-bot.line.me](https://notify-bot.line.me/my/) and paste it into `notify.line-notify`. LINE has retired this service, so prefer Discord. |
 
-### Windows
-### Solution If Turn On computer 24*7
-- use `Task Scheduler` and `Create Basic Task`
-- select `Daily` next time at `5 am`.
-- after click Next select `Start a program`, Next and browse `hoyolab.exe`
+![Discord notification](./docs/example-notify.png)
 
-### Solution If starup computer 
-- create shortcut from `hoyolab.exe`
-- copy shortcut to `C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup`
+## ⏰ Run it every day
 
-### MaOcOS & Linux
-- use `crontab` for automatic run.
+**Windows** — *Task Scheduler → Create Basic Task → Daily (e.g. 5 am) → Start a program → `hoyolab.exe`*.
+Or put a shortcut to `hoyolab.exe` in `shell:startup` to check in each time the PC boots.
 
-## Prerequisites
-- Have login to mihoyo's website at Firefox or a Firefox fork (A login for a year is enough).
-- If your existing `hoyolab.yaml` has `profile[].browser: chrome` (or `edge`/`brave`), change it to `firefox`; such entries are ignored with a warning.
-- Development builds need the sibling `go-kooky` checkout linked through a local, git-ignored `go.work` until a go-kooky release containing `CookiesForHost` is required from `go.mod`.
+**macOS / Linux** — add a cron job:
 
-## Development
+```cron
+0 5 * * * /path/to/hoyolab
+```
+
+## 🛠️ Development
 
 ```shell
 go test ./...
@@ -100,10 +100,18 @@ go vet ./...
 go build ./...
 ```
 
-Notification delivery is centralized in `act/notify.go`. LINE Notify and Discord preserve their existing payloads and status handling while sharing one Resty client per notification batch.
+- Tests never touch a real browser profile, real credentials or an outbound notification service.
+- Cookie reading lives in [`go-kooky/v2`](https://github.com/dvgamerr-app/go-kooky); game endpoints are in [`act/games.go`](./act/games.go); notification delivery is in [`act/notify.go`](./act/notify.go).
+- If `go build` fails on VCS stamping, use `go build -buildvcs=false ./...`.
 
-The notification regression tests use local HTTP test servers and do not send messages to external services.
+Contributions are welcome — please open an [issue](https://github.com/dvgamerr-app/go-hoyolab/issues) first for anything large.
 
-## If you need help You can join Discord.
+## 💬 Help
 
-[![Join Us?](https://discordapp.com/api/guilds/475720106471849996/widget.png?style=banner2)](https://discord.gg/QDccF497Mw)
+Found a bug or want a game added? [Open an issue](https://github.com/dvgamerr-app/go-hoyolab/issues), or come say hi on Discord.
+
+[![Join us on Discord](https://discordapp.com/api/guilds/475720106471849996/widget.png?style=banner2)](https://discord.gg/QDccF497Mw)
+
+## 📄 License
+
+[MIT](./LICENSE) © Kananek Thongkam

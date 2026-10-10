@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>go-hoyolab — Daily HoYoLAB check-in</title>
+<meta name="description" content="Daily HoYoLAB check-in for Genshin Impact, Honkai: Star Rail, Zenless Zone Zero and Honkai Impact 3rd. One small binary, uses your Firefox login.">
+<meta property="og:title" content="go-hoyolab">
+<meta property="og:description" content="Set it up once, forget it forever. Daily HoYoLAB check-in for every HoYoverse game.">
+<meta property="og:image" content="https://dvgamerr-app.github.io/go-hoyolab/img/checkin.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<style>
+  :root {
+    --bg: #fafaf7; --surface: #ffffff; --text: #1c1b22; --muted: #5d5b6b;
+    --line: #e4e2ec; --accent: #5b4bdb; --accent-ink: #ffffff; --code: #f0eff7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12111a; --surface: #1b1a26; --text: #ecebf4; --muted: #a09eb3;
+      --line: #2c2a3b; --accent: #8e80ff; --accent-ink: #12111a; --code: #232233;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12111a; --surface: #1b1a26; --text: #ecebf4; --muted: #a09eb3;
+    --line: #2c2a3b; --accent: #8e80ff; --accent-ink: #12111a; --code: #232233;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  nav { display: flex; align-items: center; gap: 16px; padding: 16px 0; flex-wrap: wrap; }
+  nav .brand { font-weight: 700; color: var(--text); text-decoration: none; margin-right: auto; }
+  nav a.link { color: var(--muted); text-decoration: none; font-size: 15px; }
+  nav a.link:hover { color: var(--text); }
+  .hero { padding: 56px 0 40px; text-align: center; }
+  .hero h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.1; margin: 0 0 16px; letter-spacing: -0.02em; }
+  .hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 28px; }
+  .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600;
+    text-decoration: none; border: 1px solid var(--line); color: var(--text); background: var(--surface);
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .shot { margin: 40px auto 0; max-width: 760px; }
+  .shot img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); display: block; }
+  section { padding: 48px 0; }
+  h2 { font-size: 1.6rem; margin: 0 0 20px; letter-spacing: -0.01em; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .games { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 500; }
+  .chip small { color: var(--muted); margin-left: 6px; }
+  ol.steps { padding-left: 22px; }
+  ol.steps li { margin-bottom: 12px; }
+  pre, code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  code { background: var(--code); padding: 2px 6px; border-radius: 5px; font-size: 0.9em; }
+  pre { background: var(--code); padding: 16px; border-radius: 10px; overflow-x: auto; margin: 12px 0; font-size: 14px; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .note { border-left: 4px solid var(--accent); background: var(--surface); padding: 14px 18px; border-radius: 0 10px 10px 0; border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .two { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+  .two img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; text-align: center; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#">🎮 go-hoyolab</a>
+    <a class="link" href="#features">Features</a>
+    <a class="link" href="#start">Quick start</a>
+    <a class="link" href="#notify">Notifications</a>
+    <a class="link" href="https://github.com/dvgamerr-app/go-hoyolab">GitHub</a>
+  </nav>
+
+  <header class="hero">
+    <h1>Daily HoYoLAB check-in.<br>Set it up once, forget it forever.</h1>
+    <p class="lead">One small program claims your daily rewards for every HoYoverse game, using the login you already have in Firefox.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/dvgamerr-app/go-hoyolab/releases/latest">Download latest release</a>
+      <a class="btn" href="#start">Quick start</a>
+      <a class="btn" href="https://github.com/dvgamerr-app/go-hoyolab">View on GitHub</a>
+    </div>
+    <div class="shot"><img src="img/example-logs.png" alt="Terminal output of a successful daily check-in"></div>
+  </header>
+
+  <section id="features">
+    <h2>Why go-hoyolab</h2>
+    <div class="grid">
+      <div class="card"><h3>No login setup</h3><p>Reuses your HoYoLAB session from Firefox. No passwords and no tokens to copy.</p></div>
+      <div class="card"><h3>One small binary</h3><p>A single <code>hoyolab</code> executable for Windows, macOS, Linux and FreeBSD. No runtime or Docker.</p></div>
+      <div class="card"><h3>Every game, every account</h3><p>All enabled games are checked in together, for each browser profile you have.</p></div>
+      <div class="card"><h3>Know what you got</h3><p>A Discord or LINE message lists today's reward for each game.</p></div>
+      <div class="card"><h3>Updates itself</h3><p>Picks up new releases from GitHub automatically.</p></div>
+    </div>
+  </section>
+
+  <section id="games">
+    <h2>Supported games</h2>
+    <div class="games">
+      <span class="chip">Genshin Impact <small>GSI</small></span>
+      <span class="chip">Honkai: Star Rail <small>HSR</small></span>
+      <span class="chip">Zenless Zone Zero <small>ZZZ</small></span>
+      <span class="chip">Honkai Impact 3rd <small>HI3</small></span>
+    </div>
+  </section>
+
+  <section id="start">
+    <h2>Quick start</h2>
+    <ol class="steps">
+      <li>Sign in to <a href="https://www.hoyolab.com/home">hoyolab.com</a> in <strong>Firefox</strong> (or LibreWolf, Waterfox, Zen, Floorp).</li>
+      <li>Download the archive for your OS from the <a href="https://github.com/dvgamerr-app/go-hoyolab/releases/latest">latest release</a> and unpack it.</li>
+      <li>Run it. On the first run it writes a <code>hoyolab.yaml</code> next to the binary.</li>
+    </ol>
+    <pre><code>./hoyolab          # Windows: hoyolab.exe
+./hoyolab --list   # show the browser profiles it found</code></pre>
+    <p class="note"><strong>Chrome, Edge and Brave are no longer supported.</strong> Their cookies use App-Bound Encryption (<code>v20</code>) and cannot be read from outside the browser. If your <code>hoyolab.yaml</code> has <code>profile[].browser: chrome</code>, <code>edge</code> or <code>brave</code>, change it to <code>firefox</code>.</p>
+
+    <h2 style="margin-top:36px">Configuration</h2>
+<pre><code>notify:
+  discord-webhook: "https://discord.com/api/webhooks/..."
+  line-notify: ""
+  mini: true
+profile:
+  - browser: firefox
+    name: []        # empty = every Firefox profile
+games:              # remove the games you do not play
+  - GSI
+  - HSR
+  - ZZZ</code></pre>
+  </section>
+
+  <section id="notify">
+    <h2>Notifications</h2>
+    <div class="two">
+      <div>
+        <p><strong>Discord</strong> — create a webhook in <em>Channel settings → Integrations</em> and paste the URL into <code>notify.discord-webhook</code>.</p>
+        <p><strong>LINE Notify</strong> — paste a token from <a href="https://notify-bot.line.me/my/">notify-bot.line.me</a> into <code>notify.line-notify</code>. LINE has retired this service, so prefer Discord.</p>
+        <h2 style="margin-top:28px">Run it every day</h2>
+        <p><strong>Windows</strong> — Task Scheduler → Create Basic Task → Daily → Start a program → <code>hoyolab.exe</code>.</p>
+        <p><strong>macOS / Linux</strong> — add a cron job:</p>
+        <pre><code>0 5 * * * /path/to/hoyolab</code></pre>
+      </div>
+      <img src="img/example-notify.png" alt="Discord notification listing the daily rewards">
+    </div>
+  </section>
+
+  <footer>
+    <p>MIT © Kananek Thongkam ·
+      <a href="https://github.com/dvgamerr-app/go-hoyolab/issues">Issues</a> ·
+      <a href="https://discord.gg/QDccF497Mw">Discord</a> ·
+      <a href="https://github.com/dvgamerr-app/go-hoyolab/blob/main/README_TH.md">ภาษาไทย</a></p>
+  </footer>
+</div>
+</body>
+</html>
