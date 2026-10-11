@@ -26,9 +26,9 @@ var builtinGames = []DailyHoyolab{
 		ActID: "e202303301540311",
 		API: DailyAPI{
 			Endpoint: "https://sg-public-api.hoyolab.com",
-			Award:    "/event/luna/os/home",
-			Info:     "/event/luna/os/info",
-			Sign:     "/event/luna/os/sign",
+			Award:    "/event/luna/hkrpg/os/home",
+			Info:     "/event/luna/hkrpg/os/info",
+			Sign:     "/event/luna/hkrpg/os/sign",
 		},
 		Referer: "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html",
 	},
@@ -102,7 +102,22 @@ func (e *DailyHoyolab) withDefaults() *DailyHoyolab {
 	if e.Lang == "" {
 		e.Lang = defaultLang
 	}
+	e.migrateStarRailRoutes()
 	return e
+}
+
+// Upgrade only the shipped overseas Star Rail routes, preserving custom APIs.
+func (e *DailyHoyolab) migrateStarRailRoutes() {
+	if e.ActID != "e202303301540311" || e.API.Endpoint != "https://sg-public-api.hoyolab.com" {
+		return
+	}
+	for route, suffix := range map[*string]string{
+		&e.API.Award: "home", &e.API.Info: "info", &e.API.Sign: "sign",
+	} {
+		if *route == "/event/luna/os/"+suffix {
+			*route = "/event/luna/hkrpg/os/" + suffix
+		}
+	}
 }
 
 // ResolveGames builds the active game list from `games` labels, falling back to

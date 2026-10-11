@@ -1,6 +1,7 @@
 package act
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -59,9 +60,7 @@ var dataUserAgent = map[string]string{
 	"firefox": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
 }
 
-func (e *DailyHoyolab) generateHeaders() map[string]string {
-	uri, _ := url.Parse(e.Referer)
-
+func (e *DailyHoyolab) userAgent() string {
 	userAgent := dataUserAgent[e.Name]
 	if userAgent == "" {
 		// Name may already hold a full user-agent string from the profile config.
@@ -70,16 +69,20 @@ func (e *DailyHoyolab) generateHeaders() map[string]string {
 	if userAgent == "" {
 		userAgent = dataUserAgent["chrome"]
 	}
+	return userAgent
+}
+
+func (e *DailyHoyolab) generateHeaders() map[string]string {
+	uri, _ := url.Parse(e.Referer)
 
 	headers := map[string]string{
 		"Accept":          "application/json, text/plain, */*",
-		"Accept-Encoding": "gzip, deflate, br",
 		"Accept-Language": "en-US,en;q=0.9,th;q=0.8",
 		"Connection":      "keep-alive",
 		"Content-Type":    "application/json;charset=UTF-8",
 		"Referer":         fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
 		"Origin":          fmt.Sprintf("%s://%s", uri.Scheme, uri.Host),
-		"User-Agent":      userAgent,
+		"User-Agent":      e.userAgent(),
 		"Sec-Fetch-Mode":  `cors`,
 		"Sec-Fetch-Site":  `same-site`,
 		"Sec-Fetch-Dest":  `empty`,
@@ -88,6 +91,21 @@ func (e *DailyHoyolab) generateHeaders() map[string]string {
 		headers["x-rpc-signgame"] = e.SignGame
 	}
 	return headers
+}
+
+// BBSRequest is separate from daily rewards: the community API has its own
+// referer and must not receive a game's act_id, body, or daily query parameters.
+// Keep authentication cookies unchanged; profile failure is non-fatal to check-in.
+func (hoyo *Hoyolab) BBSRequest(act *DailyHoyolab) *resty.Request {
+	time.Sleep(time.Duration(hoyo.Delay) * time.Millisecond)
+	return hoyo.Client.R().SetCookies(act.CookieJar).SetHeaders(map[string]string{
+		"Accept":         "application/json, text/plain, */*",
+		"Referer":        "https://www.hoyolab.com/",
+		"Origin":         "https://www.hoyolab.com",
+		"User-Agent":     act.userAgent(),
+		"x-rpc-language": act.Lang,
+		"x-rpc-lang":     act.Lang,
+	})
 }
 
 func (hoyo *Hoyolab) ActRequest(act *DailyHoyolab) *resty.Request {
@@ -107,11 +125,11 @@ func actResponse[T any](raw *resty.Response, actData *T) error {
 		Data    json.RawMessage `json:"data"`
 	}
 	if err := json.Unmarshal(raw.Body(), &res); err != nil {
-		return fmt.Errorf("res::%s", "Unmarshal: ActAPI")
+		return fmt.Errorf("res::Unmarshal: ActAPI (HTTP %s): %w", raw.Status(), err)
 	}
 
 	if res.RetCode != 0 {
-		return fmt.Errorf(" %s", res.Message)
+		return fmt.Errorf("retcode=%d: %s", res.RetCode, res.Message)
 	}
 
 	if err := json.Unmarshal(res.Data, actData); err != nil {
@@ -151,10 +169,10 @@ func (e *DailyHoyolab) GetMonthAward(hoyo *Hoyolab) (*ActAward, error) {
 }
 
 func (e *DailyHoyolab) GetAccountUserInfo(hoyo *Hoyolab) (*ActUser, error) {
-	// https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full?t=1683734340156
-	req := hoyo.ActRequest(e).
-		SetQueryParams(map[string]string{"t": fmt.Sprint(time.Now().UnixMilli())}).
-		SetBody(map[string]string{"act_id": e.ActID})
+	// A best-effort display name must not stall all daily requests indefinitely.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	req := hoyo.BBSRequest(e).SetContext(ctx)
 	return execute[ActUser](e, req, resty.MethodGet, "https://bbs-api-os.hoyolab.com/community/painter/wapi/user/full")
 }
 
