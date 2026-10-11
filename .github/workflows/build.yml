@@ -46,6 +46,8 @@ jobs:
     - name: Recheck Compiler
       if: contains(github.event_name, 'pull_request')
       run: |
+        go test ./...
+        go vet ./...
         mkdir -p ./bin
         go build -o ./bin/hoyolab .
 

@@ -183,22 +183,31 @@ func runProfile(hoyo *act.Hoyolab, store browserStore, profile act.BrowserProfil
 		return ""
 	}
 	hoyo.Client = resty.New()
+	return checkInAccount(hoyo, profile.UserAgent, store.Profile)
+}
 
-	var user *act.ActUser
+// checkInAccount treats the community profile as optional display information.
+// Daily endpoints still validate authentication before any sign-in is attempted.
+func checkInAccount(hoyo *act.Hoyolab, userAgent, nickname string) string {
+	if nickname == "" {
+		nickname = "HoYoLAB user"
+	}
+	profileRequested := false
 	var daySign int32 = -1
 	var awards []string
 
 	for _, game := range hoyo.Daily {
-		game.Name = profile.UserAgent
+		game.Name = userAgent
 
-		if user == nil {
-			res, err := game.GetAccountUserInfo(hoyo)
+		if !profileRequested {
+			profileRequested = true
+			user, err := game.GetAccountUserInfo(hoyo)
 			if err != nil {
 				log.Info().Msgf("%s::GetUserInfo    : %v", game.Label, err)
-				continue
+			} else if user != nil && user.UserInfo.NickName != "" {
+				nickname = user.UserInfo.NickName
+				log.Info().Msgf("%s::GetUserInfo    : Hi, '%s'", game.Label, nickname)
 			}
-			user = res
-			log.Info().Msgf("%s::GetUserInfo    : Hi, '%s'", game.Label, user.UserInfo.NickName)
 		}
 
 		resAward, err := game.GetMonthAward(hoyo)
@@ -228,24 +237,30 @@ func runProfile(hoyo *act.Hoyolab, store browserStore, profile act.BrowserProfil
 			daySign = resInfo.TotalSignDay + 1
 		}
 
+		if isRisk {
+			awards = append(awards, formatAward(hoyo.Notify.Mini, game.Label, resInfo.TotalSignDay+1, true, act.ActAwardItem{}))
+			continue
+		}
+
+		// total_sign_day counts rewards already claimed; the next reward is zero-indexed.
 		day := int(resInfo.TotalSignDay)
-		if day+1 >= len(resAward.Awards) {
+		if day < 0 || day >= len(resAward.Awards) {
 			log.Info().Msgf("%s::GetMonthAward  : No award for day %d", game.Label, day+1)
 			continue
 		}
-		award := resAward.Awards[day+1]
+		award := resAward.Awards[day]
 		log.Info().Msgf("%s::GetMonthAward  : Today's received %s x%d", game.Label, award.Name, award.Count)
 
 		awards = append(awards, formatAward(hoyo.Notify.Mini, game.Label, resInfo.TotalSignDay+1, isRisk, award))
 	}
 
-	if len(awards) == 0 || user == nil {
+	if len(awards) == 0 {
 		return ""
 	}
 	if hoyo.Notify.Mini {
-		return fmt.Sprintf("%s, at day %d your got %s", user.UserInfo.NickName, daySign, strings.Join(awards, ", "))
+		return fmt.Sprintf("%s, at day %d your got %s", nickname, daySign, strings.Join(awards, ", "))
 	}
-	return fmt.Sprintf("\nHi, %s Checked in for %d days.\n%s", user.UserInfo.NickName, daySign, strings.Join(awards, "\n"))
+	return fmt.Sprintf("\nHi, %s Checked in for %d days.\n%s", nickname, daySign, strings.Join(awards, "\n"))
 }
 
 func formatAward(mini bool, label string, day int32, isRisk bool, award act.ActAwardItem) string {
